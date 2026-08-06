@@ -1,10 +1,20 @@
 import Hero from "../components/Hero";
 import Card from "../components/Card";
 import Button from "../components/Button";
+import { VACATION_PROGRAM } from "../utils/constants";
 
 // Placeholder events — no backend yet. Replace with real data once
 // services/api.js is connected.
 const UPCOMING_EVENTS = [
+  {
+    id: 0,
+    title: VACATION_PROGRAM.title,
+    date: VACATION_PROGRAM.dates,
+    time: "Full-day sessions",
+    location: "Sir Tshobs International School",
+    featured: true,
+    description: `${VACATION_PROGRAM.subtitle}. Subjects: ${VACATION_PROGRAM.subjects.join(", ")}. ${VACATION_PROGRAM.accommodation}.`,
+  },
   {
     id: 1,
     title: "Annual Sports Day",
@@ -66,18 +76,30 @@ const Events = () => {
           {UPCOMING_EVENTS.map((event) => (
             <div
               key={event.id}
-              className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-6 shadow-md sm:flex-row sm:items-center sm:justify-between"
+              className={`flex flex-col gap-4 rounded-xl border p-6 shadow-md sm:flex-row sm:items-center sm:justify-between ${
+                event.featured
+                  ? "border-secondary/40 bg-gradient-to-r from-primary/5 to-secondary/5"
+                  : "border-border bg-surface"
+              }`}
             >
               <div>
+                {event.featured && (
+                  <span className="mb-2 inline-block rounded-full bg-secondary/20 px-3 py-0.5 font-body text-xs font-semibold uppercase tracking-wide text-accent">
+                    Featured
+                  </span>
+                )}
                 <h3 className="font-heading text-lg font-semibold text-textPrimary">
                   {event.title}
                 </h3>
                 <p className="mt-1 font-body text-sm text-textSecondary">
                   {event.date} &middot; {event.time} &middot; {event.location}
                 </p>
+                {event.description && (
+                  <p className="mt-2 font-body text-sm text-textSecondary">{event.description}</p>
+                )}
               </div>
-              <Button variant="outline" className="shrink-0">
-                Learn More
+              <Button variant={event.featured ? "primary" : "outline"} to={event.featured ? "/admissions" : undefined} className="shrink-0">
+                {event.featured ? "Register Now" : "Learn More"}
               </Button>
             </div>
           ))}

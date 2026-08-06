@@ -1,41 +1,57 @@
-import { BookOpen, Users, Building } from "lucide-react";
+import {
+  GraduationCap,
+  HeartHandshake,
+  Landmark,
+  CalendarDays,
+  ClipboardPen,
+  FlaskConical,
+} from "lucide-react";
 import Hero from "../components/Hero";
 import Card from "../components/Card";
 import Button from "../components/Button";
+import VacationBanner from "../components/VacationBanner";
+
+const ICON_PROPS = { className: "h-9 w-9", strokeWidth: 1.75 };
 
 const FEATURES = [
   {
     title: "Academic Excellence",
     description: "A challenging curriculum guided by experienced, dedicated educators.",
-    Icon: BookOpen,
+    Icon: GraduationCap,
+    iconBg: "bg-primary/10 group-hover:bg-primary",
     delay: "animate-slide-up",
   },
   {
     title: "Vibrant Community",
     description: "A supportive environment where every student is known and valued.",
-    Icon: Users,
+    Icon: HeartHandshake,
+    iconBg: "bg-secondary/15 group-hover:bg-secondary",
     delay: "animate-slide-up-delay-1",
   },
   {
     title: "Modern Facilities",
     description: "Purpose-built spaces for learning, sport, arts, and collaboration.",
-    Icon: Building,
+    Icon: Landmark,
+    iconBg: "bg-accent/10 group-hover:bg-accent",
     delay: "animate-slide-up-delay-2",
   },
 ];
 
 const NEWS_PREVIEW = [
   {
-    title: "Annual Sports Day Announced",
-    description: "Join us for a full day of athletics, team spirit, and school pride.",
+    title: "August Vacation School 2026",
+    description: "Form 1–6 revision classes in Commercials, Arts & Sciences. 12 Aug – 1 Sept.",
+    Icon: CalendarDays,
   },
   {
     title: "Admissions Open for New Term",
     description: "Applications are now open — spaces are limited, apply early.",
+    Icon: ClipboardPen,
   },
   {
     title: "Science Fair Winners",
     description: "Congratulations to our students for their outstanding projects.",
+    Icon: FlaskConical,
   },
 ];
 
@@ -54,6 +70,8 @@ const Home = () => {
         </Button>
       </Hero>
 
+      <VacationBanner />
+
       {/* Why Choose Us */}
       <section className="bg-white py-20 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
@@ -70,8 +88,10 @@ const Home = () => {
           <div className="grid grid-cols-1 gap-12 sm:grid-cols-3">
             {FEATURES.map((feature) => (
               <div key={feature.title} className={`text-center group ${feature.delay}`}>
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/5 text-secondary transition-all duration-300 group-hover:-translate-y-2 group-hover:bg-primary group-hover:text-white group-hover:shadow-xl group-hover:shadow-primary/20">
-                  <feature.Icon className="h-10 w-10" />
+                <div
+                  className={`mx-auto flex h-20 w-20 items-center justify-center rounded-2xl text-primary transition-all duration-300 group-hover:-translate-y-2 group-hover:text-white group-hover:shadow-xl group-hover:shadow-primary/20 ${feature.iconBg}`}
+                >
+                  <feature.Icon {...ICON_PROPS} />
                 </div>
                 <h3 className="mt-8 font-heading text-xl font-bold text-textPrimary transition-colors group-hover:text-primary">
                   {feature.title}
@@ -105,7 +125,7 @@ const Home = () => {
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {NEWS_PREVIEW.map((item, idx) => (
               <div key={item.title} className={`animate-slide-up-delay-${(idx % 3) + 1}`}>
-                <Card title={item.title} description={item.description} className="h-full" />
+                <Card title={item.title} description={item.description} icon={item.Icon} className="h-full" />
               </div>
             ))}
           </div>

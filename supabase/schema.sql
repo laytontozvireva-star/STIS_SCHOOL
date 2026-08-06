@@ -219,3 +219,51 @@ CREATE POLICY "Admins can manage admissions"
       WHERE p.id = auth.uid() AND p.role = 'admin'
     )
   );
+
+
+-- ================================================================
+-- VACATION POSTS
+-- Run this section in Supabase before using the admin Vacation Posts page.
+-- ================================================================
+CREATE TABLE IF NOT EXISTS public.vacation_posts (
+  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title         TEXT NOT NULL,
+  term          TEXT NOT NULL,
+  dates         TEXT NOT NULL,
+  subjects      TEXT[] NOT NULL DEFAULT '{}',
+  fees          JSONB NOT NULL DEFAULT '[]'::jsonb,
+  accommodation TEXT,
+  image_url     TEXT,
+  is_active     BOOLEAN NOT NULL DEFAULT false,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.vacation_posts ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can view active vacation posts"
+  ON public.vacation_posts FOR SELECT
+  USING (is_active = true);
+
+CREATE POLICY "Admins can manage vacation posts"
+  ON public.vacation_posts FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+
+
+-- Vacation flyer uploads (run this section in Supabase before using Add flyer)
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('vacation-flyers', 'vacation-flyers', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "Admins can upload vacation flyers" ON storage.objects;
+CREATE POLICY "Admins can upload vacation flyers"
+  ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (
+    bucket_id = 'vacation-flyers' AND
+    EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
+  );
+
+DROP POLICY IF EXISTS "Anyone can view vacation flyers" ON storage.objects;
+CREATE POLICY "Anyone can view vacation flyers"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'vacation-flyers');

@@ -34,6 +34,7 @@ import ParentGrades from "../pages/dashboard/parent/Grades";
 import AdminManageStudents from "../pages/dashboard/admin/ManageStudents";
 import AdminManageTeachers from "../pages/dashboard/admin/ManageTeachers";
 import AdminManageAdmissions from "../pages/dashboard/admin/ManageAdmissions";
+import ManageVacationPosts from "../pages/dashboard/admin/ManageVacationPosts";
 
 const AppRoutes = () => {
   return (
@@ -105,6 +106,7 @@ const AppRoutes = () => {
         <Route index element={<AdminManageStudents />} />
         <Route path="teachers" element={<AdminManageTeachers />} />
         <Route path="admissions" element={<AdminManageAdmissions />} />
+        <Route path="vacation-posts" element={<ManageVacationPosts />} />
       </Route>
     </Routes>
   );

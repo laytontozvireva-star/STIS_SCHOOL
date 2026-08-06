@@ -2,15 +2,17 @@ import { useState } from "react";
 import Hero from "../components/Hero";
 import Button from "../components/Button";
 import Loader from "../components/Loader";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { MessageCircle, Phone, MapPin } from "lucide-react";
 import { CONTACT_INFO } from "../utils/constants";
 
 const CONTACT_DETAILS = [
   { icon: MapPin, label: "Address", value: CONTACT_INFO.address },
   { icon: Phone, label: "Phone", value: CONTACT_INFO.phone },
-  { icon: Mail, label: "Email", value: CONTACT_INFO.email },
-  { icon: Clock, label: "Office Hours", value: CONTACT_INFO.officeHours },
+  { icon: MessageCircle, label: "WhatsApp", value: CONTACT_INFO.whatsapp },
 ];
+
+const whatsappUrl = `https://wa.me/263${CONTACT_INFO.whatsapp.replace(/^0/, "").replace(/\D/g, "")}`;
+const phoneUrl = `tel:${CONTACT_INFO.phone.replace(/\D/g, "")}`;
 
 const Contact = () => {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
@@ -52,17 +54,25 @@ const Contact = () => {
             </p>
 
             <div className="mt-8 space-y-6">
-              {CONTACT_DETAILS.map(({ icon: Icon, label, value }) => (
+              {CONTACT_DETAILS.map(({ icon: Icon, label, value }) => {
+                const href = label === "WhatsApp" ? whatsappUrl : label === "Phone" ? phoneUrl : null;
+
+                return (
                 <div key={label} className="flex items-start gap-4">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                     <Icon className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="font-body text-sm font-medium text-textPrimary">{label}</p>
-                    <p className="font-body text-sm text-textSecondary">{value}</p>
+                    {href ? (
+                      <a href={href} className="font-body text-sm text-primary hover:underline">{value}</a>
+                    ) : (
+                      <p className="font-body text-sm text-textSecondary">{value}</p>
+                    )}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

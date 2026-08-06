@@ -1,17 +1,14 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin } from "lucide-react";
-import { NAV_LINKS, CONTACT_INFO, SOCIAL_LINKS, SCHOOL_NAME } from "../utils/constants";
+import { Phone, MapPin, Calendar, Home, MessageCircle } from "lucide-react";
+import { NAV_LINKS, CONTACT_INFO, SCHOOL_NAME, VACATION_PROGRAM } from "../utils/constants";
 import logo from "../assets/images/logo.jpg";
 
 const QUICK_LINKS = NAV_LINKS.filter((link) =>
   ["About", "Academics", "Admissions", "News", "Events", "Contact"].includes(link.label)
 );
 
-const SOCIAL_ICONS = [
-  { label: "Facebook", href: SOCIAL_LINKS.facebook, initial: "f" },
-  { label: "Twitter", href: SOCIAL_LINKS.twitter, initial: "t" },
-  { label: "Instagram", href: SOCIAL_LINKS.instagram, initial: "in" },
-];
+const whatsappUrl = `https://wa.me/263${CONTACT_INFO.whatsapp.replace(/^0/, "").replace(/\D/g, "")}`;
+const phoneUrl = `tel:${CONTACT_INFO.phone.replace(/\D/g, "")}`;
 
 const Footer = () => {
   const year = new Date().getFullYear();
@@ -29,8 +26,8 @@ const Footer = () => {
               </span>
             </Link>
             <p className="font-body text-sm leading-relaxed text-gray-400">
-              Committed to academic excellence, character, and community —
-              preparing students for a lifetime of learning.
+              Cambridge-affiliated education for Form 1 to 6. Nurturing excellence,
+              character, and lifelong learning.
             </p>
           </div>
 
@@ -64,39 +61,73 @@ const Footer = () => {
                 <span>{CONTACT_INFO.address}</span>
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4 shrink-0 text-secondary" />
-                <span>{CONTACT_INFO.phone}</span>
+                <MessageCircle className="h-4 w-4 shrink-0 text-secondary" />
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors hover:text-secondary"
+                >
+                  WhatsApp {CONTACT_INFO.whatsapp}
+                </a>
               </li>
               <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4 shrink-0 text-secondary" />
-                <span>{CONTACT_INFO.email}</span>
+                <Phone className="h-4 w-4 shrink-0 text-secondary" />
+                <a href={phoneUrl} className="transition-colors hover:text-secondary">
+                  Call {CONTACT_INFO.phone}
+                </a>
               </li>
             </ul>
           </div>
 
-          {/* Social */}
+          {/* August Vacation School */}
           <div>
             <h3 className="mb-4 font-heading text-sm font-semibold uppercase tracking-wide text-white">
-              Follow Us
+              {VACATION_PROGRAM.title}
             </h3>
-            <div className="flex gap-3">
-              {SOCIAL_ICONS.map(({ label, href, initial }) => (
-                <a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 font-body text-xs font-semibold text-white transition-colors duration-200 hover:bg-secondary hover:text-textPrimary"
-                >
-                  {initial}
-                </a>
-              ))}
-            </div>
+            <ul className="space-y-3 font-body text-sm text-gray-400">
+              <li className="flex items-start gap-2">
+                <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-secondary" />
+                <span>{VACATION_PROGRAM.dates}</span>
+              </li>
+              <li>{VACATION_PROGRAM.subtitle}</li>
+              <li>
+                <span className="text-gray-300">Fees: </span>
+                {VACATION_PROGRAM.fees.map((fee) => `${fee.label} ${fee.amount}`).join(" - ")}
+              </li>
+              <li className="flex items-center gap-2">
+                <Home className="h-4 w-4 shrink-0 text-secondary" />
+                <span>{VACATION_PROGRAM.accommodation}</span>
+              </li>
+            </ul>
+            <Link
+              to="/admissions"
+              className="mt-4 inline-block font-body text-sm font-semibold text-secondary transition-colors hover:text-white"
+            >
+              Register for vacation school ->
+            </Link>
           </div>
+        </div>
+
+        {/* Vacation promo strip */}
+        <div className="mt-10 rounded-xl border border-secondary/20 bg-white/5 px-6 py-4 text-center">
+          <p className="font-body text-sm text-gray-300">
+            <span className="font-semibold text-secondary">{VACATION_PROGRAM.title}</span>
+            {" - "}
+            {VACATION_PROGRAM.dates}
+            {" - "}
+            {VACATION_PROGRAM.subjects.join(", ")}
+            {" - "}
+            Enroll via WhatsApp{" "}
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-white hover:text-secondary">
+              {CONTACT_INFO.whatsapp}
+            </a>
+          </p>
         </div>
 
         {/* Bottom bar */}
         <div className="mt-10 border-t border-white/10 pt-6 text-center font-body text-xs text-gray-500">
-          © {year} {SCHOOL_NAME}. All rights reserved.
+          Copyright {year} {SCHOOL_NAME}. All rights reserved.
         </div>
       </div>
     </footer>

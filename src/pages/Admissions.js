@@ -2,7 +2,7 @@ import { useState } from "react";
 import Hero from "../components/Hero";
 import Button from "../components/Button";
 import Loader from "../components/Loader";
-import { GRADE_OPTIONS } from "../utils/constants";
+import { GRADE_OPTIONS, VACATION_PROGRAM, CONTACT_INFO } from "../utils/constants";
 
 const STEPS = [
   { number: "1", title: "Inquire", description: "Submit the form below or contact our admissions office." },
@@ -21,6 +21,8 @@ const REQUIRED_DOCUMENTS = [
 
 
 
+const whatsappUrl = `https://wa.me/263${CONTACT_INFO.whatsapp.replace(/^0/, "").replace(/\D/g, "")}`;
+
 const Admissions = () => {
   const [formData, setFormData] = useState({
     parentName: "",
@@ -38,7 +40,7 @@ const Admissions = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // NOTE: No backend yet — this is a placeholder submission.
+    // NOTE: No backend yet - this is a placeholder submission.
     // Replace with a real API call via services/api.js once available.
     setIsSubmitting(true);
     setTimeout(() => {
@@ -73,6 +75,38 @@ const Admissions = () => {
               </p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* August Vacation School */}
+      <section className="bg-primary px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl text-center">
+          <h2 className="font-heading text-2xl font-bold text-white sm:text-3xl">
+            {VACATION_PROGRAM.title}
+          </h2>
+          <p className="mt-3 font-body text-gray-200">{VACATION_PROGRAM.subtitle}</p>
+          <p className="mt-1 font-body text-secondary font-semibold">{VACATION_PROGRAM.dates}</p>
+
+          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
+            {VACATION_PROGRAM.fees.map((fee) => (
+              <div key={fee.label} className="rounded-xl bg-white/10 p-6 backdrop-blur-sm">
+                <p className="font-body text-sm text-gray-300">{fee.label}</p>
+                <p className="mt-2 font-heading text-2xl font-bold text-secondary">{fee.amount}</p>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-8 font-body text-sm text-gray-300">
+            Subjects offered: {VACATION_PROGRAM.subjects.join(", ")} - {VACATION_PROGRAM.accommodation}
+          </p>
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex rounded-xl bg-secondary px-6 py-3 font-body text-sm font-semibold text-primaryDark transition-colors hover:bg-white"
+          >
+            Enquire on WhatsApp: {CONTACT_INFO.whatsapp}
+          </a>
         </div>
       </section>
 

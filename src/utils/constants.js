@@ -1,15 +1,26 @@
 // Centralized values used across multiple components/pages.
-// Editing here keeps Footer, Contact, and Navbar consistent —
-// but note: this file is not yet wired into those components.
-// See the note at the end of this task's summary.
+// Editing here keeps all public contact displays consistent.
 
-export const SCHOOL_NAME = "School Name";
+export const SCHOOL_NAME = "Sir Tshobs International School";
 
 export const CONTACT_INFO = {
-  address: "123 Education Lane, Harare, Zimbabwe",
-  phone: "+263 000 000 000",
-  email: "info@schoolname.edu",
-  officeHours: "Mon - Fri, 8:00 AM - 4:00 PM",
+  // Contact details supplied on the school flyer.
+  address: "1063 Juru Locations, Opp. Juru Zinwa",
+  phone: "0717 155 557",
+  whatsapp: "0717 155 557",
+};
+
+export const VACATION_PROGRAM = {
+  title: "August Vacation School",
+  subtitle: "Form 1 to 6 - Commercials, Arts and Sciences",
+  dates: "12 August to 1 September 2026",
+  subjects: ["Commercials", "Arts", "Sciences"],
+  fees: [
+    { label: "Admin fee", amount: "$5.00" },
+    { label: "O' Level", amount: "$10/subject" },
+    { label: "A' Level", amount: "$20/subject" },
+  ],
+  accommodation: "Accommodation available",
 };
 
 export const SOCIAL_LINKS = {
