@@ -17,6 +17,7 @@ import Events from "../pages/Events";
 import Staff from "../pages/Staff";
 import Contact from "../pages/Contact";
 import Login from "../pages/Login";
+import Profile from "../pages/Profile";
 
 import StudentOverview from "../pages/dashboard/student/Overview";
 import StudentGrades from "../pages/dashboard/student/Grades";
@@ -50,6 +51,7 @@ const AppRoutes = () => {
         <Route path="staff" element={<Staff />} />
         <Route path="contact" element={<Contact />} />
         <Route path="login" element={<Login />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
 
       {/* Dashboards — sibling routes, NOT inside MainLayout, so no public Navbar/Footer */}
