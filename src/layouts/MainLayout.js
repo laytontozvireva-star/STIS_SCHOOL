@@ -1,13 +1,15 @@
 import { Outlet } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
-// Navbar and Footer will be added here in a later task.
-// Keeping this layout minimal for now so routing can be verified independently.
 const MainLayout = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background">
+      <Navbar />
       <main className="flex-1">
         <Outlet />
       </main>
+      <Footer />
     </div>
   );
 };

@@ -1,75 +1,105 @@
 import { useState } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { NAV_LINKS, SCHOOL_NAME } from "../utils/constants";
 import logo from "../assets/images/logo.jpg";
-
-const NAV_LINKS = [
-  { label: "Home", to: "/" },
-  { label: "About", to: "/about" },
-  { label: "Academics", to: "/academics" },
-  { label: "Departments", to: "/departments" },
-  { label: "Admissions", to: "/admissions" },
-  { label: "Gallery", to: "/gallery" },
-  { label: "News", to: "/news" },
-  { label: "Events", to: "/events" },
-  { label: "Staff", to: "/staff" },
-  { label: "Contact", to: "/contact" },
-];
 
 const desktopLinkClasses = ({ isActive }) =>
   [
-    "px-1 py-2 text-sm font-medium font-body transition-colors duration-200",
+    "group relative px-1 py-2 text-sm font-semibold font-body transition-colors duration-300",
     isActive
-      ? "text-primary border-b-2 border-primary"
+      ? "text-primary"
       : "text-textSecondary hover:text-primary",
   ].join(" ");
 
+const DesktopLinkUnderline = ({ isActive }) => (
+  <span
+    className={`absolute -bottom-1 left-0 h-0.5 bg-secondary transition-all duration-300 ${
+      isActive ? "w-full" : "w-0 group-hover:w-full"
+    }`}
+  />
+);
+
 const mobileLinkClasses = ({ isActive }) =>
   [
-    "block rounded-xl px-4 py-3 text-base font-medium font-body transition-colors duration-200",
+    "block rounded-xl px-4 py-3 text-base font-semibold font-body transition-all duration-300",
     isActive
-      ? "bg-primary/5 text-primary"
-      : "text-textSecondary hover:bg-background hover:text-primary",
+      ? "bg-primary/5 text-primary border-l-4 border-secondary"
+      : "text-textSecondary hover:bg-background hover:text-primary border-l-4 border-transparent",
   ].join(" ");
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const closeMenu = () => setIsOpen(false);
 
+  const handleLogout = () => {
+    logout();
+    closeMenu();
+    navigate("/");
+  };
+
   return (
-    <header className="sticky top-0 z-50 bg-surface border-b border-border shadow-md">
+    <header className="sticky top-0 z-50 glass border-b border-border/50">
       <nav
         aria-label="Primary"
-        className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-20 lg:px-8"
+        className="relative mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-20 lg:px-8"
       >
         {/* Left: Logo */}
         <Link to="/" className="flex shrink-0 items-center gap-2" onClick={closeMenu}>
           <img src={logo} alt="School logo" className="h-10 w-10 object-contain lg:h-12 lg:w-12" />
           <span className="hidden font-heading text-lg font-semibold text-textPrimary sm:block lg:text-xl">
-            School Name
+            {SCHOOL_NAME}
           </span>
         </Link>
 
-        {/* Center: Desktop nav */}
-        <ul className="hidden items-center gap-6 lg:flex">
-          {NAV_LINKS.map((link) => (
-            <li key={link.to}>
-              <NavLink to={link.to} end={link.to === "/"} className={desktopLinkClasses}>
-                {link.label}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
+        {/* Center: Desktop navigation, centered */}
+        <div className="flex-1 flex items-center justify-center">
+          <ul className="hidden lg:flex items-center gap-5 xl:gap-6">
+            {NAV_LINKS.map((link) => (
+              <li key={link.to}>
+                <NavLink to={link.to} end={link.to === '/' } className={desktopLinkClasses}>
+                  {({ isActive }) => (
+                    <>
+                      {link.label}
+                      <DesktopLinkUnderline isActive={isActive} />
+                    </>
+                  )}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-        {/* Right: Login button + mobile toggle */}
+        {/* Right: Auth area + mobile toggle */}
         <div className="flex items-center gap-3">
-          <Link
-            to="/login"
-            className="hidden rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold font-body text-white transition-colors duration-200 hover:bg-primary/90 lg:inline-block"
-          >
-            Login
-          </Link>
+          {isAuthenticated ? (
+            <div className="hidden items-center gap-4 border-l border-border pl-5 lg:flex">
+              <Link
+                to={`/dashboard/${user.role}`}
+                className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold font-body text-white transition-colors duration-200 hover:bg-primary/90"
+              >
+                Dashboard
+              </Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="rounded-xl border border-border px-5 py-2.5 text-sm font-semibold font-body text-textPrimary transition-colors duration-200 hover:bg-background"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="hidden rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold font-body text-white transition-colors duration-200 hover:bg-primary/90 lg:inline-block"
+            >
+              Login
+            </Link>
+          )}
 
           <button
             type="button"
@@ -99,14 +129,33 @@ const Navbar = () => {
               </NavLink>
             </li>
           ))}
-          <li className="pt-2">
-            <Link
-              to="/login"
-              onClick={closeMenu}
-              className="block rounded-xl bg-primary px-4 py-3 text-center text-base font-semibold font-body text-white transition-colors duration-200 hover:bg-primary/90"
-            >
-              Login
-            </Link>
+          <li className="pt-2 space-y-2">
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to={`/dashboard/${user.role}`}
+                  onClick={closeMenu}
+                  className="block rounded-xl bg-primary px-4 py-3 text-center text-base font-semibold font-body text-white transition-colors duration-200 hover:bg-primary/90"
+                >
+                  Go to Dashboard
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="block w-full rounded-xl border border-border px-4 py-3 text-center text-base font-semibold font-body text-textPrimary transition-colors duration-200 hover:bg-background"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                onClick={closeMenu}
+                className="block rounded-xl bg-primary px-4 py-3 text-center text-base font-semibold font-body text-white transition-colors duration-200 hover:bg-primary/90"
+              >
+                Login
+              </Link>
+            )}
           </li>
         </ul>
       </div>

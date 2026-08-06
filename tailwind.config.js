@@ -6,12 +6,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: "#1D4ED8",     // Royal Blue
-        secondary: "#F59E0B",   // Gold
-        accent: "#8B5E3C",      // Brown
+        primary: "#1B3F7A",     // Primary Navy Blue
+        primaryDark: "#0D1F45", // Deep Navy
+        secondary: "#F5A623",   // Golden Amber
+        accent: "#A85A2A",      // Rust Brown
         background: "#F8FAFC",
         surface: "#FFFFFF",
-        textPrimary: "#1F2937",
+        textPrimary: "#0D1F45", // Changed to Deep Navy for better integration
         textSecondary: "#6B7280",
         border: "#E5E7EB",
       },

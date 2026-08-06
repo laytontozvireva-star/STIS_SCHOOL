@@ -1,5 +1,10 @@
 import { Routes, Route } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
+import StudentDashboardLayout from "../layouts/StudentDashboardLayout";
+import TeacherDashboardLayout from "../layouts/TeacherDashboardLayout";
+import ParentDashboardLayout from "../layouts/ParentDashboardLayout";
+import AdminDashboardLayout from "../layouts/AdminDashboardLayout";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 import Home from "../pages/Home";
 import About from "../pages/About";
@@ -13,14 +18,26 @@ import Staff from "../pages/Staff";
 import Contact from "../pages/Contact";
 import Login from "../pages/Login";
 
-import StudentDashboard from "../pages/StudentDashboard";
-import TeacherDashboard from "../pages/TeacherDashboard";
-import ParentDashboard from "../pages/ParentDashboard";
-import AdminDashboard from "../pages/AdminDashboard";
+import StudentOverview from "../pages/dashboard/student/Overview";
+import StudentGrades from "../pages/dashboard/student/Grades";
+import StudentSchedule from "../pages/dashboard/student/Schedule";
+import StudentAttendance from "../pages/dashboard/student/Attendance";
+
+import TeacherMyClasses from "../pages/dashboard/teacher/MyClasses";
+import TeacherGrades from "../pages/dashboard/teacher/Grades";
+import TeacherAttendance from "../pages/dashboard/teacher/Attendance";
+
+import ParentOverview from "../pages/dashboard/parent/Overview";
+import ParentGrades from "../pages/dashboard/parent/Grades";
+
+import AdminManageStudents from "../pages/dashboard/admin/ManageStudents";
+import AdminManageTeachers from "../pages/dashboard/admin/ManageTeachers";
+import AdminManageAdmissions from "../pages/dashboard/admin/ManageAdmissions";
 
 const AppRoutes = () => {
   return (
     <Routes>
+      {/* Public site — wrapped in MainLayout (Navbar + Footer) */}
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Home />} />
         <Route path="about" element={<About />} />
@@ -33,11 +50,59 @@ const AppRoutes = () => {
         <Route path="staff" element={<Staff />} />
         <Route path="contact" element={<Contact />} />
         <Route path="login" element={<Login />} />
+      </Route>
 
-        <Route path="dashboard/student" element={<StudentDashboard />} />
-        <Route path="dashboard/teacher" element={<TeacherDashboard />} />
-        <Route path="dashboard/parent" element={<ParentDashboard />} />
-        <Route path="dashboard/admin" element={<AdminDashboard />} />
+      {/* Dashboards — sibling routes, NOT inside MainLayout, so no public Navbar/Footer */}
+      <Route
+        path="dashboard/student"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <StudentDashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<StudentOverview />} />
+        <Route path="grades" element={<StudentGrades />} />
+        <Route path="schedule" element={<StudentSchedule />} />
+        <Route path="attendance" element={<StudentAttendance />} />
+      </Route>
+
+      <Route
+        path="dashboard/teacher"
+        element={
+          <ProtectedRoute allowedRoles={["teacher"]}>
+            <TeacherDashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<TeacherMyClasses />} />
+        <Route path="grades" element={<TeacherGrades />} />
+        <Route path="attendance" element={<TeacherAttendance />} />
+      </Route>
+
+      <Route
+        path="dashboard/parent"
+        element={
+          <ProtectedRoute allowedRoles={["parent"]}>
+            <ParentDashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<ParentOverview />} />
+        <Route path="grades" element={<ParentGrades />} />
+      </Route>
+
+      <Route
+        path="dashboard/admin"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminDashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<AdminManageStudents />} />
+        <Route path="teachers" element={<AdminManageTeachers />} />
+        <Route path="admissions" element={<AdminManageAdmissions />} />
       </Route>
     </Routes>
   );
