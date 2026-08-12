@@ -3,7 +3,7 @@ import { NavLink, Link, useNavigate } from "react-router-dom";
 import { Menu, X, ChevronDown, LayoutDashboard, LogOut, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { NAV_LINKS, SCHOOL_NAME } from "../utils/constants";
-import logo from "../assets/images/logo.jpg";
+import logo from "../assets/images/logo.webp";
 
 /* ─── Desktop link styles ─────────────────────────────────────────── */
 const desktopLinkClasses = ({ isActive }) =>

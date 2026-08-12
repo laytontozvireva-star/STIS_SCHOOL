@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Phone, MapPin, Calendar, Home, MessageCircle } from "lucide-react";
 import { NAV_LINKS, CONTACT_INFO, SCHOOL_NAME, VACATION_PROGRAM } from "../utils/constants";
-import logo from "../assets/images/logo.jpg";
+import logo from "../assets/images/logo.webp";
 
 const QUICK_LINKS = NAV_LINKS.filter((link) =>
   ["About", "Academics", "Admissions", "News", "Events", "Contact"].includes(link.label)

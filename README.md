@@ -1,70 +1,139 @@
-# Getting Started with Create React App
+# 🏫 Sir Tshobs International School (STIS)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> A full-stack school management web application built with React and Supabase.
 
-## Available Scripts
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 🚀 Quick Start
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 1 — Clone & install dependencies
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```bash
+git clone <your-repo-url>
+cd stis_school
+npm install
+```
 
-### `npm test`
+### 2 — Configure environment variables
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Create a `.env` file in the project root (or edit the existing one):
 
-### `npm run build`
+```env
+REACT_APP_SUPABASE_URL=your_supabase_project_url
+REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+> Get these from your [Supabase project settings → API](https://app.supabase.com).
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 3 — Set up the database
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Open your [Supabase SQL Editor](https://app.supabase.com) and run the full contents of:
 
-### `npm run eject`
+```
+supabase/schema.sql
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+This creates all tables, RLS policies, and storage buckets in one go.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 4 — Start the development server
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+npm start
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 📦 Available Scripts
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+| Command | Description |
+|---|---|
+| `npm start` | Run the app in development mode with hot reload |
+| `npm run build` | Build a production-optimised bundle to the `build/` folder |
+| `npm test` | Launch the test runner in interactive watch mode |
 
-### Code Splitting
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 🗂️ Project Structure
 
-### Analyzing the Bundle Size
+```
+src/
+├── assets/          # Images and static files
+├── components/      # Reusable UI components (Hero, Card, Button, Sidebar…)
+├── context/         # AuthContext (Supabase session)
+├── layouts/         # Page shells — MainLayout, dashboard layouts per role
+├── pages/           # Public pages + role dashboards
+│   ├── dashboard/
+│   │   ├── admin/   # ManageStudents, ManageNews, ManageEvents, ManageVacationPosts…
+│   │   ├── teacher/ # Overview, Grades, Attendance, MyClasses
+│   │   ├── student/ # Overview, Grades, Schedule, Attendance
+│   │   └── parent/  # Overview, Grades
+│   └── *.js         # Home, About, Academics, Events, News, Contact…
+├── routes/          # AppRoutes.js — central route definitions
+├── services/        # Supabase service modules (one per feature)
+└── utils/           # constants.js — school name, contact info, nav links
+supabase/
+├── schema.sql       # Full database schema — run once in Supabase SQL Editor
+└── functions/       # Edge functions (admin account provisioning)
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## 🔑 User Roles
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+| Role | Access |
+|---|---|
+| **Public** | Home, About, Academics, Events, News, Contact, Gallery, Admissions |
+| **Student** | Dashboard — Grades, Schedule, Attendance |
+| **Teacher** | Dashboard — My Classes, Enter Grades, Attendance |
+| **Parent** | Dashboard — Child's Grades & Attendance |
+| **Admin** | Full dashboard — Students, Teachers, Admissions, Events, News, Vacation Posts, Gallery, Accounts |
 
-### Advanced Configuration
+> Admin and teacher accounts must be provisioned by an existing admin via **Create Accounts** in the admin portal. Students can self-register.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+---
 
-### Deployment
+## ✏️ Updating Term Content (No Code Required)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Log in as **Admin** and use the dashboard to update:
 
-### `npm run build` fails to minify
+| What changes each term | Admin page |
+|---|---|
+| School events (sports day, conferences…) | **Manage Events** |
+| Vacation / holiday school programme | **Vacation Posts** → mark Active |
+| News & announcements | **Manage News** |
+| Gallery photos | **Manage Gallery** |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Events whose date has passed automatically move to "Past Events" — no manual archiving needed.
+
+---
+
+## 📍 School Location
+
+**1063 Juru Locations, Opp. Juru Zinwa**  
+Juru, Mashonaland East, Zimbabwe
+
+📞 0717 155 557 &nbsp;|&nbsp; 💬 WhatsApp: 0717 155 557
+
+[📌 Open in Google Maps](https://www.google.com/maps/dir/?api=1&destination=-17.6784574,31.4698984)
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend:** React 18, React Router v6
+- **Styling:** Tailwind CSS, custom design tokens
+- **Backend / DB:** Supabase (PostgreSQL, Auth, Storage, Edge Functions)
+- **Icons:** Lucide React
+- **Build tool:** Create React App
+
+---
+
+## 📄 License
+
+This project is private and maintained by Sir Tshobs International School.

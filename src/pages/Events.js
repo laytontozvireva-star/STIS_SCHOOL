@@ -1,65 +1,113 @@
+import { useEffect, useState } from "react";
 import Hero from "../components/Hero";
 import Card from "../components/Card";
 import Button from "../components/Button";
+import Loader from "../components/Loader";
 import { VACATION_PROGRAM } from "../utils/constants";
+import { getEvents } from "../services/eventsService";
 
-// Placeholder events — no backend yet. Replace with real data once
-// services/api.js is connected.
-const UPCOMING_EVENTS = [
+// ── Fallback data shown until the events table has content ───────────────────
+const FALLBACK_UPCOMING = [
   {
     id: 0,
     title: VACATION_PROGRAM.title,
-    date: VACATION_PROGRAM.dates,
-    time: "Full-day sessions",
+    event_date: "2026-08-12",
+    time_label: "Full-day sessions",
     location: "Sir Tshobs International School",
-    featured: true,
+    is_featured: true,
     description: `${VACATION_PROGRAM.subtitle}. Subjects: ${VACATION_PROGRAM.subjects.join(", ")}. ${VACATION_PROGRAM.accommodation}.`,
   },
   {
     id: 1,
     title: "Annual Sports Day",
-    date: "September 12, 2026",
-    time: "8:00 AM - 3:00 PM",
+    event_date: "2026-09-12",
+    time_label: "8:00 AM – 3:00 PM",
     location: "Main Sports Field",
   },
   {
     id: 2,
     title: "Parent-Teacher Conference",
-    date: "September 20, 2026",
-    time: "9:00 AM - 4:00 PM",
+    event_date: "2026-09-20",
+    time_label: "9:00 AM – 4:00 PM",
     location: "School Hall",
   },
   {
     id: 3,
     title: "Cultural Day Celebration",
-    date: "October 3, 2026",
-    time: "10:00 AM - 2:00 PM",
+    event_date: "2026-10-03",
+    time_label: "10:00 AM – 2:00 PM",
     location: "School Grounds",
   },
 ];
 
-const PAST_EVENTS = [
+const FALLBACK_PAST = [
   {
     id: 4,
     title: "Science Fair",
-    date: "July 18, 2026",
-    excerpt: "Students showcased innovative projects across biology, chemistry, and physics.",
+    event_date: "2026-07-18",
+    description: "Students showcased innovative projects across biology, chemistry, and physics.",
   },
   {
     id: 5,
     title: "Graduation Ceremony",
-    date: "June 30, 2026",
-    excerpt: "We celebrated our graduating class and their achievements over the years.",
+    event_date: "2026-06-30",
+    description: "We celebrated our graduating class and their achievements over the years.",
   },
   {
     id: 6,
     title: "Inter-House Athletics",
-    date: "June 8, 2026",
-    excerpt: "A spirited day of competition between our four school houses.",
+    event_date: "2026-06-08",
+    description: "A spirited day of competition between our four school houses.",
   },
 ];
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
+const TODAY = new Date().toISOString().split("T")[0];
+
+const friendlyDate = (iso) =>
+  new Date(iso + "T00:00:00").toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+// ════════════════════════════════════════════════════════════════════════════
 const Events = () => {
+  const [allEvents, setAllEvents] = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [useFallback, setUseFallback] = useState(false);
+
+  useEffect(() => {
+    getEvents()
+      .then((data) => {
+        if (data.length > 0) {
+          setAllEvents(data);
+        } else {
+          setUseFallback(true);
+        }
+      })
+      .catch(() => setUseFallback(true))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Split live events into upcoming / past based on date
+  const upcoming = useFallback
+    ? FALLBACK_UPCOMING
+    : allEvents.filter((ev) => ev.event_date >= TODAY);
+
+  const past = useFallback
+    ? FALLBACK_PAST
+    : allEvents.filter((ev) => ev.event_date < TODAY);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
+
   return (
     <div>
       <Hero
@@ -67,60 +115,83 @@ const Events = () => {
         subtitle="See what's happening on campus — upcoming and past events."
       />
 
-      {/* Upcoming Events */}
+      {/* ── Upcoming Events ─────────────────────────────────────────── */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="font-heading text-2xl font-bold text-textPrimary sm:text-3xl">
           Upcoming Events
         </h2>
-        <div className="mt-8 space-y-4">
-          {UPCOMING_EVENTS.map((event) => (
-            <div
-              key={event.id}
-              className={`flex flex-col gap-4 rounded-xl border p-6 shadow-md sm:flex-row sm:items-center sm:justify-between ${
-                event.featured
-                  ? "border-secondary/40 bg-gradient-to-r from-primary/5 to-secondary/5"
-                  : "border-border bg-surface"
-              }`}
-            >
-              <div>
-                {event.featured && (
-                  <span className="mb-2 inline-block rounded-full bg-secondary/20 px-3 py-0.5 font-body text-xs font-semibold uppercase tracking-wide text-accent">
-                    Featured
-                  </span>
-                )}
-                <h3 className="font-heading text-lg font-semibold text-textPrimary">
-                  {event.title}
-                </h3>
-                <p className="mt-1 font-body text-sm text-textSecondary">
-                  {event.date} &middot; {event.time} &middot; {event.location}
-                </p>
-                {event.description && (
-                  <p className="mt-2 font-body text-sm text-textSecondary">{event.description}</p>
-                )}
-              </div>
-              <Button variant={event.featured ? "primary" : "outline"} to={event.featured ? "/admissions" : undefined} className="shrink-0">
-                {event.featured ? "Register Now" : "Learn More"}
-              </Button>
-            </div>
-          ))}
-        </div>
-      </section>
 
-      {/* Past Events */}
-      <section className="bg-background px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <h2 className="font-heading text-2xl font-bold text-textPrimary sm:text-3xl">
-            Past Events
-          </h2>
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {PAST_EVENTS.map((event) => (
-              <Card key={event.id} title={event.title} description={event.excerpt}>
-                <span className="font-body text-xs text-textSecondary">{event.date}</span>
-              </Card>
+        {upcoming.length === 0 ? (
+          <p className="mt-8 font-body text-sm text-textSecondary">
+            No upcoming events at the moment — check back soon.
+          </p>
+        ) : (
+          <div className="mt-8 space-y-4">
+            {upcoming.map((event) => (
+              <div
+                key={event.id}
+                className={`flex flex-col gap-4 rounded-xl border p-6 shadow-md sm:flex-row sm:items-center sm:justify-between ${
+                  event.is_featured
+                    ? "border-secondary/40 bg-gradient-to-r from-primary/5 to-secondary/5"
+                    : "border-border bg-surface"
+                }`}
+              >
+                <div>
+                  {event.is_featured && (
+                    <span className="mb-2 inline-block rounded-full bg-secondary/20 px-3 py-0.5 font-body text-xs font-semibold uppercase tracking-wide text-accent">
+                      Featured
+                    </span>
+                  )}
+                  <h3 className="font-heading text-lg font-semibold text-textPrimary">
+                    {event.title}
+                  </h3>
+                  <p className="mt-1 font-body text-sm text-textSecondary">
+                    {friendlyDate(event.event_date)}
+                    {event.time_label && <> &middot; {event.time_label}</>}
+                    {event.location   && <> &middot; {event.location}</>}
+                  </p>
+                  {event.description && (
+                    <p className="mt-2 font-body text-sm text-textSecondary">
+                      {event.description}
+                    </p>
+                  )}
+                </div>
+                <Button
+                  variant={event.is_featured ? "primary" : "outline"}
+                  to={event.is_featured ? "/admissions" : "/contact"}
+                  className="shrink-0"
+                >
+                  {event.is_featured ? "Register Now" : "Learn More"}
+                </Button>
+              </div>
             ))}
           </div>
-        </div>
+        )}
       </section>
+
+      {/* ── Past Events ─────────────────────────────────────────────── */}
+      {past.length > 0 && (
+        <section className="bg-background px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="font-heading text-2xl font-bold text-textPrimary sm:text-3xl">
+              Past Events
+            </h2>
+            <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {past.map((event) => (
+                <Card
+                  key={event.id}
+                  title={event.title}
+                  description={event.description || ""}
+                >
+                  <span className="font-body text-xs text-textSecondary">
+                    {friendlyDate(event.event_date)}
+                  </span>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 };

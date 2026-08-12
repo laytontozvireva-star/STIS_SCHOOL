@@ -3,7 +3,7 @@ import { Calendar, BookOpen, DollarSign, Home, Phone } from "lucide-react";
 import Button from "./Button";
 import { VACATION_PROGRAM, CONTACT_INFO } from "../utils/constants";
 import { getActiveVacationPost } from "../services/vacationPostsService";
-import bannerImage from "../assets/images/august-vacation-banner.png";
+import bannerImage from "../assets/images/august-vacation-banner.webp";
 
 const VacationBanner = () => {
   const whatsappUrl = `https://wa.me/263${CONTACT_INFO.whatsapp.replace(/^0/, "").replace(/\D/g, "")}`;

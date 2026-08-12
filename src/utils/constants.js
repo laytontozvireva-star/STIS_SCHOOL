@@ -8,6 +8,17 @@ export const CONTACT_INFO = {
   address: "1063 Juru Locations, Opp. Juru Zinwa",
   phone: "0717 155 557",
   whatsapp: "0717 155 557",
+
+  // Location details for the Contact/Find-Us section.
+  landmark: "Opposite Juru ZINWA offices, along the Harare–Mutare highway",
+  region: "Juru, Mashonaland East, Zimbabwe",
+  officeHours: "Mon – Fri: 7:30 AM – 4:00 PM",
+
+  // Google Maps – confirmed Juru coordinates from the shared Maps link.
+  mapEmbedUrl:
+    "https://maps.google.com/maps?q=-17.6784574,31.4698984&hl=en&z=15&output=embed",
+  directionsUrl:
+    "https://www.google.com/maps/dir/?api=1&destination=-17.6784574,31.4698984",
 };
 
 export const VACATION_PROGRAM = {

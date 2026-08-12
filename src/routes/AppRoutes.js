@@ -38,6 +38,8 @@ import AdminManageAdmissions from "../pages/dashboard/admin/ManageAdmissions";
 import ManageVacationPosts from "../pages/dashboard/admin/ManageVacationPosts";
 import ManageGallery from "../pages/dashboard/admin/ManageGallery";
 import ManageNews from "../pages/dashboard/admin/ManageNews";
+import ManageEvents from "../pages/dashboard/admin/ManageEvents";
+import ManageAccounts from "../pages/dashboard/admin/ManageAccounts";
 
 const AppRoutes = () => {
   return (
@@ -113,6 +115,8 @@ const AppRoutes = () => {
         <Route path="vacation-posts" element={<ManageVacationPosts />} />
         <Route path="gallery" element={<ManageGallery />} />
         <Route path="news" element={<ManageNews />} />
+        <Route path="events" element={<ManageEvents />} />
+        <Route path="accounts" element={<ManageAccounts />} />
       </Route>
     </Routes>
   );

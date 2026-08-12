@@ -413,3 +413,39 @@ CREATE POLICY "Admins can delete gallery images" ON storage.objects FOR DELETE T
 DROP POLICY IF EXISTS "Anyone can view gallery image files" ON storage.objects;
 CREATE POLICY "Anyone can view gallery image files" ON storage.objects FOR SELECT
   USING (bucket_id = 'gallery-images');
+
+-- ================================================================
+-- EVENTS MANAGEMENT
+-- Run this section in Supabase SQL Editor before using the admin Events page.
+-- Past vs upcoming is derived automatically: event_date < today = past.
+-- ================================================================
+CREATE TABLE IF NOT EXISTS public.events (
+  id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title        TEXT NOT NULL,
+  event_date   DATE NOT NULL,
+  time_label   TEXT,                        -- e.g. "8:00 AM – 3:00 PM"
+  location     TEXT NOT NULL DEFAULT 'Sir Tshobs International School',
+  description  TEXT,
+  is_featured  BOOLEAN NOT NULL DEFAULT false,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can view events" ON public.events;
+CREATE POLICY "Anyone can view events"
+  ON public.events FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Admins can manage events" ON public.events;
+CREATE POLICY "Admins can manage events"
+  ON public.events FOR ALL
+  USING  (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+
+-- ================================================================
+-- ADMIN ACCOUNT PROVISIONING EDGE FUNCTION
+-- Deploy after reviewing: supabase functions deploy admin-create-account
+-- The function verifies the caller's profiles.role is admin before it can
+-- create a teacher, parent, or administrator account. Never expose the
+-- SUPABASE_SERVICE_ROLE_KEY in the React application.
+-- ================================================================

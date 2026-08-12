@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Hero from "../components/Hero";
 import Card from "../components/Card";
 import Button from "../components/Button";
+import Modal from "../components/Modal";
 import { getNewsPosts } from "../services/newsService";
 
 // Placeholder news items — no backend yet. Replace with data fetched via
@@ -47,6 +48,8 @@ const NEWS_ITEMS = [
 
 const News = () => {
   const [publishedNews, setPublishedNews] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+
   useEffect(() => { getNewsPosts().then(setPublishedNews).catch(() => {}); }, []);
   const items = publishedNews.length ? publishedNews.map((post) => ({ ...post, date: new Date(post.published_at || post.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) })) : NEWS_ITEMS;
   return (
@@ -60,9 +63,9 @@ const News = () => {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
             <Card key={item.id} title={item.title} description={item.excerpt}>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mt-4">
                 <span className="font-body text-xs text-textSecondary">{item.date}</span>
-                <Button variant="outline" className="px-3 py-1.5 text-xs">
+                <Button variant="outline" className="px-3 py-1.5 text-xs" onClick={() => setSelectedItem(item)}>
                   Read More
                 </Button>
               </div>
@@ -70,6 +73,15 @@ const News = () => {
           ))}
         </div>
       </section>
+
+      <Modal 
+        isOpen={!!selectedItem} 
+        onClose={() => setSelectedItem(null)} 
+        title={selectedItem?.title}
+      >
+        <p className="mb-4 text-xs font-semibold text-primary">{selectedItem?.date}</p>
+        <p className="whitespace-pre-wrap">{selectedItem?.excerpt}</p>
+      </Modal>
     </div>
   );
 };

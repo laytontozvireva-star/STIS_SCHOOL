@@ -2,15 +2,15 @@ import {
   GraduationCap,
   HeartHandshake,
   Landmark,
-  CalendarDays,
-  ClipboardPen,
-  FlaskConical,
+  Newspaper,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import Hero from "../components/Hero";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import VacationBanner from "../components/VacationBanner";
-import campusImage from "../assets/images/stis-campus.jpeg";
+import campusImage from "../assets/images/stis-campus.webp";
+import { getNewsPosts } from "../services/newsService";
 
 const ICON_PROPS = { className: "h-9 w-9", strokeWidth: 1.75 };
 
@@ -38,25 +38,37 @@ const FEATURES = [
   },
 ];
 
-const NEWS_PREVIEW = [
+// Fallback shown until Supabase news_posts has content
+const FALLBACK_NEWS = [
   {
+    id: "f1",
     title: "August Vacation School 2026",
-    description: "Form 1–6 revision classes in Commercials, Arts & Sciences. 12 Aug – 1 Sept.",
-    Icon: CalendarDays,
+    excerpt: "Form 1–6 revision classes in Commercials, Arts & Sciences. 12 Aug – 1 Sept.",
   },
   {
+    id: "f2",
     title: "Admissions Open for New Term",
-    description: "Applications are now open — spaces are limited, apply early.",
-    Icon: ClipboardPen,
+    excerpt: "Applications are now open — spaces are limited, apply early.",
   },
   {
+    id: "f3",
     title: "Science Fair Winners",
-    description: "Congratulations to our students for their outstanding projects.",
-    Icon: FlaskConical,
+    excerpt: "Congratulations to our students for their outstanding projects.",
   },
 ];
 
 const Home = () => {
+  const [newsItems, setNewsItems] = useState([]);
+
+  useEffect(() => {
+    getNewsPosts()
+      .then((posts) => {
+        if (posts.length > 0) setNewsItems(posts.slice(0, 3));
+      })
+      .catch(() => {});
+  }, []);
+
+  const preview = newsItems.length > 0 ? newsItems : FALLBACK_NEWS;
   return (
     <div>
       <Hero
@@ -125,9 +137,14 @@ const Home = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {NEWS_PREVIEW.map((item, idx) => (
-              <div key={item.title} className={`animate-slide-up-delay-${(idx % 3) + 1}`}>
-                <Card title={item.title} description={item.description} icon={item.Icon} className="h-full" />
+            {preview.map((item, idx) => (
+              <div key={item.id || item.title} className={`animate-slide-up-delay-${(idx % 3) + 1}`}>
+                <Card
+                  title={item.title}
+                  description={item.excerpt || item.description || ""}
+                  icon={Newspaper}
+                  className="h-full"
+                />
               </div>
             ))}
           </div>
