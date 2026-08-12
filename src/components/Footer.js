@@ -1,11 +1,9 @@
 import { Link } from "react-router-dom";
 import { Phone, MapPin, Calendar, Home, MessageCircle } from "lucide-react";
-import { NAV_LINKS, CONTACT_INFO, SCHOOL_NAME, VACATION_PROGRAM } from "../utils/constants";
+import { MAIN_NAV_LINKS, FOOTER_NAV_LINKS, CONTACT_INFO, SCHOOL_NAME, VACATION_PROGRAM } from "../utils/constants";
 import logo from "../assets/images/logo.webp";
 
-const QUICK_LINKS = NAV_LINKS.filter((link) =>
-  ["About", "Academics", "Admissions", "News", "Events", "Contact"].includes(link.label)
-);
+const QUICK_LINKS = [...MAIN_NAV_LINKS, ...FOOTER_NAV_LINKS];
 
 const whatsappUrl = `https://wa.me/263${CONTACT_INFO.whatsapp.replace(/^0/, "").replace(/\D/g, "")}`;
 const phoneUrl = `tel:${CONTACT_INFO.phone.replace(/\D/g, "")}`;
@@ -34,9 +32,9 @@ const Footer = () => {
           {/* Quick links */}
           <nav aria-label="Footer quick links">
             <h3 className="mb-4 font-heading text-sm font-semibold uppercase tracking-wide text-white">
-              Quick Links
+              Explore
             </h3>
-            <ul className="space-y-2">
+            <ul className="grid grid-cols-2 gap-y-2 gap-x-4">
               {QUICK_LINKS.map((link) => (
                 <li key={link.to}>
                   <Link

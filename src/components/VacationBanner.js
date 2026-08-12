@@ -46,58 +46,67 @@ const VacationBanner = () => {
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div className="order-1 space-y-6 animate-slide-up-delay-2">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="rounded-xl bg-white/10 p-5 backdrop-blur-sm">
-                <Calendar className="h-6 w-6 text-secondary" />
-                <p className="mt-3 font-heading text-sm font-semibold uppercase tracking-wide text-secondary">
+              <div className="group rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-white/20 hover:shadow-xl hover:shadow-black/20">
+                <div className="mb-4 inline-flex rounded-xl bg-secondary/20 p-2.5 text-secondary transition-colors group-hover:bg-secondary group-hover:text-primaryDark">
+                  <Calendar className="h-5 w-5" />
+                </div>
+                <p className="font-heading text-xs font-bold uppercase tracking-wider text-secondary/90 group-hover:text-white transition-colors">
                   Dates
                 </p>
-                <p className="mt-1 font-body text-white">{program.dates}</p>
+                <p className="mt-2 font-body text-base font-medium text-white">{program.dates}</p>
               </div>
 
-              <div className="rounded-xl bg-white/10 p-5 backdrop-blur-sm">
-                <BookOpen className="h-6 w-6 text-secondary" />
-                <p className="mt-3 font-heading text-sm font-semibold uppercase tracking-wide text-secondary">
+              <div className="group rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-white/20 hover:shadow-xl hover:shadow-black/20">
+                <div className="mb-4 inline-flex rounded-xl bg-secondary/20 p-2.5 text-secondary transition-colors group-hover:bg-secondary group-hover:text-primaryDark">
+                  <BookOpen className="h-5 w-5" />
+                </div>
+                <p className="font-heading text-xs font-bold uppercase tracking-wider text-secondary/90 group-hover:text-white transition-colors">
                   Subjects
                 </p>
-                <p className="mt-1 font-body text-white">
-                  {program.subjects.join(" - ")}
+                <p className="mt-2 font-body text-base font-medium text-white">
+                  {program.subjects.join(" · ")}
                 </p>
               </div>
 
-              <div className="rounded-xl bg-white/10 p-5 backdrop-blur-sm">
-                <DollarSign className="h-6 w-6 text-secondary" />
-                <p className="mt-3 font-heading text-sm font-semibold uppercase tracking-wide text-secondary">
+              <div className="group rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-white/20 hover:shadow-xl hover:shadow-black/20">
+                <div className="mb-4 inline-flex rounded-xl bg-secondary/20 p-2.5 text-secondary transition-colors group-hover:bg-secondary group-hover:text-primaryDark">
+                  <DollarSign className="h-5 w-5" />
+                </div>
+                <p className="font-heading text-xs font-bold uppercase tracking-wider text-secondary/90 group-hover:text-white transition-colors">
                   Fees
                 </p>
-                <ul className="mt-1 space-y-1 font-body text-sm text-gray-200">
+                <ul className="mt-2 space-y-1.5 font-body text-sm text-gray-200">
                   {program.fees.map((fee) => (
-                    <li key={fee.label}>
-                      {fee.label}{fee.amount ? <>: <span className="font-semibold text-white">{fee.amount}</span></> : null}
+                    <li key={fee.label} className="flex justify-between border-b border-white/10 pb-1 last:border-0 last:pb-0">
+                      <span>{fee.label}</span>
+                      {fee.amount ? <span className="font-semibold text-white">{fee.amount}</span> : null}
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="rounded-xl bg-white/10 p-5 backdrop-blur-sm">
-                <Home className="h-6 w-6 text-secondary" />
-                <p className="mt-3 font-heading text-sm font-semibold uppercase tracking-wide text-secondary">
+              <div className="group rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-white/20 hover:shadow-xl hover:shadow-black/20">
+                <div className="mb-4 inline-flex rounded-xl bg-secondary/20 p-2.5 text-secondary transition-colors group-hover:bg-secondary group-hover:text-primaryDark">
+                  <Home className="h-5 w-5" />
+                </div>
+                <p className="font-heading text-xs font-bold uppercase tracking-wider text-secondary/90 group-hover:text-white transition-colors">
                   Accommodation
                 </p>
-                <p className="mt-1 font-body text-white">{program.accommodation}</p>
+                <p className="mt-2 font-body text-base font-medium text-white">{program.accommodation}</p>
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Button variant="secondary" to="/admissions">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center mt-8">
+              <Button variant="secondary" to="/admissions" className="shadow-lg shadow-secondary/20 hover:shadow-secondary/40 hover:-translate-y-0.5 transition-all">
                 Register Now
               </Button>
               <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 px-6 py-3 font-body text-sm font-semibold text-white transition-colors hover:bg-white/20"
+                className="group inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3 font-body text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/15 hover:shadow-lg"
               >
-                <Phone className="h-4 w-4" />
+                <Phone className="h-4 w-4 transition-transform group-hover:scale-110" />
                 WhatsApp {CONTACT_INFO.whatsapp}
               </a>
             </div>

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { Menu, X, ChevronDown, LayoutDashboard, LogOut, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { NAV_LINKS, SCHOOL_NAME } from "../utils/constants";
+import { MAIN_NAV_LINKS } from "../utils/constants";
 import logo from "../assets/images/logo.webp";
 
 /* ─── Desktop link styles ─────────────────────────────────────────── */
@@ -85,15 +85,15 @@ const Navbar = () => {
             alt="School logo"
             className="h-10 w-10 object-contain lg:h-12 lg:w-12"
           />
-          <span className="hidden font-heading text-lg font-bold text-textPrimary sm:block lg:text-xl">
-            {SCHOOL_NAME}
+          <span className="hidden font-heading text-lg font-bold text-textPrimary md:block">
+            S.T.I.S
           </span>
         </Link>
 
         {/* ── Center: Nav links (flex-1 so they fill & center) ── */}
         <div className="hidden lg:flex flex-1 items-center justify-center">
           <ul className="flex items-center gap-1 xl:gap-2">
-            {NAV_LINKS.map((link) => (
+            {MAIN_NAV_LINKS.map((link) => (
               <li key={link.to}>
                 <NavLink
                   to={link.to}
@@ -219,7 +219,7 @@ const Navbar = () => {
         }`}
       >
         <ul className="space-y-1 border-t border-border bg-surface px-4 py-4">
-          {NAV_LINKS.map((link) => (
+          {MAIN_NAV_LINKS.map((link) => (
             <li key={link.to}>
               <NavLink
                 to={link.to}

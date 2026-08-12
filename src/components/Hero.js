@@ -2,12 +2,18 @@ const Hero = ({ title, subtitle, backgroundImage, children, className = "" }) =>
   return (
     <section
       className={`relative flex min-h-[480px] lg:min-h-[560px] items-center justify-center overflow-hidden ${
-        backgroundImage ? "bg-cover bg-center" : "bg-gradient-to-br from-primaryDark via-primary to-[#2a5497]"
+        !backgroundImage ? "bg-gradient-to-br from-primaryDark via-primary to-[#2a5497]" : ""
       } ${className}`}
-      style={backgroundImage ? { backgroundImage: `url(${backgroundImage})`, backgroundPosition: "center top" } : undefined}
     >
       {backgroundImage && (
-        <div className="absolute inset-0 bg-primaryDark/75 mix-blend-multiply" aria-hidden="true" />
+        <>
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${backgroundImage})` }}
+          />
+          {/* Clean gradient overlay for readability without ruining image colors */}
+          <div className="absolute inset-0 bg-gradient-to-t from-primaryDark/95 via-primaryDark/60 to-black/40" aria-hidden="true" />
+        </>
       )}
 
       {/* Decorative background glow */}

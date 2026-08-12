@@ -40,17 +40,20 @@ export const SOCIAL_LINKS = {
   instagram: "#",
 };
 
-export const NAV_LINKS = [
+export const MAIN_NAV_LINKS = [
   { label: "Home", to: "/" },
   { label: "About", to: "/about" },
   { label: "Academics", to: "/academics" },
-  { label: "Departments", to: "/departments" },
   { label: "Admissions", to: "/admissions" },
+  { label: "Contact", to: "/contact" },
+];
+
+export const FOOTER_NAV_LINKS = [
+  { label: "Departments", to: "/departments" },
   { label: "Gallery", to: "/gallery" },
   { label: "News", to: "/news" },
   { label: "Events", to: "/events" },
   { label: "Staff", to: "/staff" },
-  { label: "Contact", to: "/contact" },
 ];
 
 export const GRADE_OPTIONS = [

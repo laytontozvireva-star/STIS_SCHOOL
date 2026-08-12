@@ -128,7 +128,7 @@ const Admissions = () => {
             </ul>
           </div>
 
-          {/* Inquiry form */}
+          {/* Enquiry form */}
           <div className="rounded-xl border border-border bg-surface p-8 shadow-md">
             <h2 className="font-heading text-xl font-bold text-textPrimary">
               Request Information
@@ -136,7 +136,7 @@ const Admissions = () => {
 
             {submitted ? (
               <p className="mt-4 font-body text-sm text-textPrimary">
-                Thank you! Your inquiry has been received. Our admissions team will
+                Thank you! Your enquiry has been received. Our admissions team will
                 be in touch shortly.
               </p>
             ) : (
@@ -206,7 +206,7 @@ const Admissions = () => {
                 </div>
 
                 <Button type="submit" variant="primary" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? <Loader size="sm" /> : "Submit Inquiry"}
+                  {isSubmitting ? <Loader size="sm" /> : "Submit Enquiry"}
                 </Button>
               </form>
             )}
