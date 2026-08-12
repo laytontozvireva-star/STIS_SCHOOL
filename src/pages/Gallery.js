@@ -1,30 +1,62 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Hero from "../components/Hero";
+import cakeImage from "../assets/images/gallery/stis-anniversary-cake.jpeg";
+import teamImage from "../assets/images/gallery/stis-anniversary-team.jpeg";
+import celebrationImage from "../assets/images/gallery/stis-anniversary-celebration.jpeg";
+import classroom19Image from "../assets/images/gallery/stis-19.jpeg";
+import classroom18Image from "../assets/images/gallery/stis-18.jpeg";
+import classroom17Image from "../assets/images/gallery/stis-17.jpeg";
+import event16Image from "../assets/images/gallery/stis-16.jpeg";
+import classroom15Image from "../assets/images/gallery/stis-15.jpeg";
+import classroom14Image from "../assets/images/gallery/stis-14.jpeg";
+import classroom13Image from "../assets/images/gallery/stis-13.jpeg";
+import campus12Image from "../assets/images/gallery/stis-12.jpeg";
+import awards11Image from "../assets/images/gallery/stis-11.jpeg";
+import football10Image from "../assets/images/gallery/stis-10.jpeg";
+import football9Image from "../assets/images/gallery/stis-9.jpeg";
+import netball8Image from "../assets/images/gallery/stis-8.jpeg";
+import computerLab7Image from "../assets/images/gallery/stis-7.jpeg";
+import scienceLab6Image from "../assets/images/gallery/stis-6.jpeg";
+import scienceLab5Image from "../assets/images/gallery/stis-5.jpeg";
+import campusImage from "../assets/images/stis-campus.jpeg";
+import { getGalleryImages } from "../services/galleryService";
 
 const CATEGORIES = ["All", "Campus", "Events", "Sports", "Academics"];
 
-// Placeholder gallery items — no real photos yet, so each uses a labeled
-// color block instead of a broken <img> tag. Swap `image` for a real
-// imported asset once photos are available (same pattern as logo.png).
 const GALLERY_ITEMS = [
-  { id: 1, title: "Main Campus Building", category: "Campus" },
-  { id: 2, title: "Science Laboratory", category: "Academics" },
-  { id: 3, title: "Annual Sports Day", category: "Sports" },
-  { id: 4, title: "Graduation Ceremony", category: "Events" },
-  { id: 5, title: "Library", category: "Campus" },
-  { id: 6, title: "Inter-House Athletics", category: "Sports" },
-  { id: 7, title: "Science Fair", category: "Academics" },
-  { id: 8, title: "Cultural Day", category: "Events" },
-  { id: 9, title: "School Grounds", category: "Campus" },
+  { id: 1, title: "S.T.I.S Campus", category: "Campus", image: campusImage },
+  { id: 2, title: "Campus Entrance", category: "Campus", image: campus12Image },
+  { id: 3, title: "Second Anniversary Cake", category: "Events", image: cakeImage },
+  { id: 4, title: "Anniversary Celebration", category: "Events", image: teamImage },
+  { id: 5, title: "Celebrating Together", category: "Events", image: celebrationImage },
+  { id: 6, title: "School Gathering", category: "Events", image: event16Image },
+  { id: 7, title: "Learning Together", category: "Academics", image: classroom19Image },
+  { id: 8, title: "Classroom Focus", category: "Academics", image: classroom18Image },
+  { id: 9, title: "Students in Class", category: "Academics", image: classroom17Image },
+  { id: 10, title: "Classroom Session", category: "Academics", image: classroom15Image },
+  { id: 11, title: "Engaged Learners", category: "Academics", image: classroom14Image },
+  { id: 12, title: "Learning with Confidence", category: "Academics", image: classroom13Image },
+  { id: 13, title: "Computer Laboratory", category: "Academics", image: computerLab7Image },
+  { id: 14, title: "Science Practical", category: "Academics", image: scienceLab6Image },
+  { id: 15, title: "Science Experiment", category: "Academics", image: scienceLab5Image },
+  { id: 16, title: "Student Achievement", category: "Sports", image: awards11Image },
+  { id: 17, title: "Football Action", category: "Sports", image: football10Image },
+  { id: 18, title: "Football Match", category: "Sports", image: football9Image },
+  { id: 19, title: "Netball Team", category: "Sports", image: netball8Image },
 ];
 
 const Gallery = () => {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [uploadedItems, setUploadedItems] = useState([]);
+
+  useEffect(() => { getGalleryImages().then(setUploadedItems).catch(() => {}); }, []);
+
+  const allItems = [...uploadedItems, ...GALLERY_ITEMS];
 
   const filteredItems =
     activeCategory === "All"
-      ? GALLERY_ITEMS
-      : GALLERY_ITEMS.filter((item) => item.category === activeCategory);
+      ? allItems
+      : allItems.filter((item) => item.category === activeCategory);
 
   return (
     <div>
@@ -59,10 +91,11 @@ const Gallery = () => {
               key={item.id}
               className="group overflow-hidden rounded-xl border border-border bg-surface shadow-md transition-shadow duration-200 hover:shadow-lg"
             >
-              {/* Placeholder image block — replace with a real <img> once photos exist */}
-              <div className="flex h-48 w-full items-center justify-center bg-primary/10 font-body text-xs text-primary">
-                Image coming soon
-              </div>
+              <img
+                src={item.image}
+                alt={item.title}
+                className="h-56 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
               <div className="p-4">
                 <h3 className="font-heading text-sm font-semibold text-textPrimary">
                   {item.title}

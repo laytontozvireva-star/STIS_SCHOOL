@@ -1,12 +1,3 @@
-const ManageStudents = () => {
-  return (
-    <div>
-      <h1 className="font-heading text-2xl font-bold text-textPrimary">Manage Students</h1>
-      <p className="mt-2 font-body text-sm text-textSecondary">
-        Student records and management tools will appear here once connected to real data.
-      </p>
-    </div>
-  );
-};
-
-export default ManageStudents;
+import { useEffect, useState } from "react";
+import { getStudents } from "../../../services/dashboardService";
+const ManageStudents = () => { const [rows,setRows]=useState([]); const [message,setMessage]=useState("Loading student records..."); useEffect(()=>{getStudents().then((data)=>{setRows(data);setMessage(data.length?"":"No student records yet.");}).catch((error)=>setMessage(error.message));},[]); return <div><h1 className="font-heading text-2xl font-bold text-textPrimary">Manage Students</h1>{message?<p className="mt-3 font-body text-sm text-textSecondary">{message}</p>:<div className="mt-6 overflow-x-auto rounded-xl border border-border bg-surface"><table className="w-full text-left font-body text-sm"><thead className="bg-background text-textSecondary"><tr><th className="p-4">Student</th><th className="p-4">Email</th><th className="p-4">Grade</th><th className="p-4">Class</th></tr></thead><tbody>{rows.map((student)=><tr key={student.id} className="border-t border-border"><td className="p-4 font-medium text-textPrimary">{student.profiles?.name}</td><td className="p-4">{student.profiles?.email}</td><td className="p-4">{student.grade}</td><td className="p-4">{student.class}</td></tr>)}</tbody></table></div>}</div>}; export default ManageStudents;

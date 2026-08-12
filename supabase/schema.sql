@@ -267,3 +267,149 @@ DROP POLICY IF EXISTS "Anyone can view vacation flyers" ON storage.objects;
 CREATE POLICY "Anyone can view vacation flyers"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'vacation-flyers');
+
+
+-- ================================================================
+-- PORTAL DASHBOARD DATA AND SECURITY
+-- Run this section in Supabase SQL Editor before using the live dashboards.
+-- ================================================================
+CREATE TABLE IF NOT EXISTS public.parent_students (
+  parent_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  student_id UUID NOT NULL REFERENCES public.students(id) ON DELETE CASCADE,
+  PRIMARY KEY (parent_id, student_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.teacher_classes (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  teacher_id UUID NOT NULL REFERENCES public.teachers(id) ON DELETE CASCADE,
+  subject TEXT NOT NULL,
+  grade TEXT NOT NULL,
+  class TEXT NOT NULL,
+  room TEXT,
+  UNIQUE (teacher_id, subject, grade, class)
+);
+
+CREATE TABLE IF NOT EXISTS public.class_schedule (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  grade TEXT NOT NULL,
+  class TEXT NOT NULL,
+  day TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  room TEXT
+);
+
+ALTER TABLE public.parent_students ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.teacher_classes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.class_schedule ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Parents can view their children" ON public.parent_students;
+CREATE POLICY "Parents can view their children" ON public.parent_students FOR SELECT
+  USING (parent_id = auth.uid() OR EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+
+DROP POLICY IF EXISTS "Admins can manage parent links" ON public.parent_students;
+CREATE POLICY "Admins can manage parent links" ON public.parent_students FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+
+DROP POLICY IF EXISTS "Teachers and admins can view teacher classes" ON public.teacher_classes;
+CREATE POLICY "Teachers and admins can view teacher classes" ON public.teacher_classes FOR SELECT
+  USING (EXISTS (SELECT 1 FROM public.teachers t WHERE t.id = teacher_id AND t.profile_id = auth.uid()) OR EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+
+DROP POLICY IF EXISTS "Admins can manage teacher classes" ON public.teacher_classes;
+CREATE POLICY "Admins can manage teacher classes" ON public.teacher_classes FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+
+DROP POLICY IF EXISTS "Students can view own schedule" ON public.class_schedule;
+CREATE POLICY "Students can view own schedule" ON public.class_schedule FOR SELECT
+  USING (EXISTS (SELECT 1 FROM public.students s WHERE s.profile_id = auth.uid() AND s.grade = class_schedule.grade AND s.class = class_schedule.class) OR EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('teacher','admin')));
+
+DROP POLICY IF EXISTS "Admins can manage schedules" ON public.class_schedule;
+CREATE POLICY "Admins can manage schedules" ON public.class_schedule FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+
+DROP POLICY IF EXISTS "Parents can view linked student grades" ON public.grades;
+CREATE POLICY "Parents can view linked student grades" ON public.grades FOR SELECT
+  USING (EXISTS (SELECT 1 FROM public.parent_students ps WHERE ps.parent_id = auth.uid() AND ps.student_id = grades.student_id));
+
+DROP POLICY IF EXISTS "Parents can view linked student attendance" ON public.attendance;
+CREATE POLICY "Parents can view linked student attendance" ON public.attendance FOR SELECT
+  USING (EXISTS (SELECT 1 FROM public.parent_students ps WHERE ps.parent_id = auth.uid() AND ps.student_id = attendance.student_id));
+
+DROP POLICY IF EXISTS "Admins can manage students" ON public.students;
+CREATE POLICY "Admins can manage students" ON public.students FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+
+DROP POLICY IF EXISTS "Admins can manage teachers" ON public.teachers;
+CREATE POLICY "Admins can manage teachers" ON public.teachers FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+
+-- Public signup always creates a student. Privileged accounts must be provisioned by the school.
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, name, email, role)
+  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'name', 'New User'), NEW.email, 'student');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+REVOKE UPDATE ON public.profiles FROM authenticated;
+GRANT UPDATE (name, email, phone, address, bio) ON public.profiles TO authenticated;
+
+-- ================================================================
+-- GALLERY AND NEWS CONTENT MANAGEMENT
+-- Run this section in Supabase SQL Editor before using the admin pages.
+-- ================================================================
+CREATE TABLE IF NOT EXISTS public.gallery_images (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  category TEXT NOT NULL CHECK (category IN ('Campus', 'Events', 'Sports', 'Academics')),
+  image_url TEXT NOT NULL,
+  storage_path TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.news_posts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  excerpt TEXT NOT NULL,
+  published_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.gallery_images ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.news_posts ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can view gallery images" ON public.gallery_images;
+CREATE POLICY "Anyone can view gallery images" ON public.gallery_images FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Admins can manage gallery images" ON public.gallery_images;
+CREATE POLICY "Admins can manage gallery images" ON public.gallery_images FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+
+DROP POLICY IF EXISTS "Anyone can view news posts" ON public.news_posts;
+CREATE POLICY "Anyone can view news posts" ON public.news_posts FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Admins can manage news posts" ON public.news_posts;
+CREATE POLICY "Admins can manage news posts" ON public.news_posts FOR ALL
+  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('gallery-images', 'gallery-images', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "Admins can upload gallery images" ON storage.objects;
+CREATE POLICY "Admins can upload gallery images" ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'gallery-images' AND EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+DROP POLICY IF EXISTS "Admins can delete gallery images" ON storage.objects;
+CREATE POLICY "Admins can delete gallery images" ON storage.objects FOR DELETE TO authenticated
+  USING (bucket_id = 'gallery-images' AND EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+DROP POLICY IF EXISTS "Anyone can view gallery image files" ON storage.objects;
+CREATE POLICY "Anyone can view gallery image files" ON storage.objects FOR SELECT
+  USING (bucket_id = 'gallery-images');

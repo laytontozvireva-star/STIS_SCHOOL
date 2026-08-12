@@ -24,6 +24,7 @@ import StudentGrades from "../pages/dashboard/student/Grades";
 import StudentSchedule from "../pages/dashboard/student/Schedule";
 import StudentAttendance from "../pages/dashboard/student/Attendance";
 
+import TeacherOverview from "../pages/dashboard/teacher/Overview";
 import TeacherMyClasses from "../pages/dashboard/teacher/MyClasses";
 import TeacherGrades from "../pages/dashboard/teacher/Grades";
 import TeacherAttendance from "../pages/dashboard/teacher/Attendance";
@@ -35,6 +36,8 @@ import AdminManageStudents from "../pages/dashboard/admin/ManageStudents";
 import AdminManageTeachers from "../pages/dashboard/admin/ManageTeachers";
 import AdminManageAdmissions from "../pages/dashboard/admin/ManageAdmissions";
 import ManageVacationPosts from "../pages/dashboard/admin/ManageVacationPosts";
+import ManageGallery from "../pages/dashboard/admin/ManageGallery";
+import ManageNews from "../pages/dashboard/admin/ManageNews";
 
 const AppRoutes = () => {
   return (
@@ -78,7 +81,8 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
-        <Route index element={<TeacherMyClasses />} />
+        <Route index element={<TeacherOverview />} />
+        <Route path="classes" element={<TeacherMyClasses />} />
         <Route path="grades" element={<TeacherGrades />} />
         <Route path="attendance" element={<TeacherAttendance />} />
       </Route>
@@ -107,6 +111,8 @@ const AppRoutes = () => {
         <Route path="teachers" element={<AdminManageTeachers />} />
         <Route path="admissions" element={<AdminManageAdmissions />} />
         <Route path="vacation-posts" element={<ManageVacationPosts />} />
+        <Route path="gallery" element={<ManageGallery />} />
+        <Route path="news" element={<ManageNews />} />
       </Route>
     </Routes>
   );

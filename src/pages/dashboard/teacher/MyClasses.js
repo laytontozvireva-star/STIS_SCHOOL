@@ -1,12 +1,4 @@
-const MyClasses = () => {
-  return (
-    <div>
-      <h1 className="font-heading text-2xl font-bold text-textPrimary">My Classes</h1>
-      <p className="mt-2 font-body text-sm text-textSecondary">
-        The list of classes you teach will appear here once connected to real data.
-      </p>
-    </div>
-  );
-};
-
-export default MyClasses;
+import { useEffect, useState } from "react";
+import { useAuth } from "../../../context/AuthContext";
+import { getMyTeacher, getTeacherClasses } from "../../../services/dashboardService";
+const MyClasses = () => { const { user }=useAuth(); const [rows,setRows]=useState([]); const [message,setMessage]=useState("Loading classes..."); useEffect(()=>{(async()=>{try{const teacher=await getMyTeacher(user.id);if(!teacher)return setMessage("Your teacher record has not been linked yet.");const classes=await getTeacherClasses(teacher.id);setRows(classes);setMessage(classes.length?"":"No classes have been assigned yet.");}catch(error){setMessage(error.message)}})()},[user.id]); return <div><h1 className="font-heading text-2xl font-bold text-textPrimary">My Classes</h1>{message?<p className="mt-3 font-body text-sm text-textSecondary">{message}</p>:<div className="mt-6 grid gap-4 sm:grid-cols-2">{rows.map((row)=><div key={row.id} className="rounded-2xl border border-border bg-surface p-5"><h2 className="font-heading text-lg font-semibold text-textPrimary">{row.subject}</h2><p className="mt-2 font-body text-sm text-textSecondary">{row.grade} - {row.class}</p><p className="mt-1 font-body text-sm text-textSecondary">{row.room || "Room to be confirmed"}</p></div>)}</div>}</div>}; export default MyClasses;

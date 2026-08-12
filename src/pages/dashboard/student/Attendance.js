@@ -1,12 +1,4 @@
-const Attendance = () => {
-  return (
-    <div>
-      <h1 className="font-heading text-2xl font-bold text-textPrimary">Attendance</h1>
-      <p className="mt-2 font-body text-sm text-textSecondary">
-        Your attendance record will appear here once connected to real data.
-      </p>
-    </div>
-  );
-};
-
-export default Attendance;
+import { useEffect, useState } from "react";
+import { useAuth } from "../../../context/AuthContext";
+import { getMyStudent, getStudentAttendance } from "../../../services/dashboardService";
+const Attendance = () => { const { user }=useAuth(); const [rows,setRows]=useState([]); const [message,setMessage]=useState("Loading attendance..."); useEffect(()=>{(async()=>{try{const student=await getMyStudent(user.id);if(!student)return setMessage("Your student record has not been linked yet.");const data=await getStudentAttendance(student.id);setRows(data);setMessage(data.length?"":"No attendance has been recorded yet.");}catch(error){setMessage(error.message)}})()},[user.id]); return <div><h1 className="font-heading text-2xl font-bold text-textPrimary">Attendance</h1>{message?<p className="mt-3 font-body text-sm text-textSecondary">{message}</p>:<div className="mt-6 space-y-3">{rows.map((row)=><div key={row.id} className="flex items-center justify-between rounded-xl border border-border bg-surface p-4"><span className="font-body text-sm text-textPrimary">{row.date}</span><span className="rounded-full bg-primary/10 px-3 py-1 font-body text-xs font-semibold capitalize text-primary">{row.status}</span></div>)}</div>}</div>}; export default Attendance;

@@ -1,18 +1,2 @@
 import { useOutletContext } from "react-router-dom";
-
-const Overview = () => {
-  const { selectedChild } = useOutletContext();
-
-  return (
-    <div>
-      <h1 className="font-heading text-2xl font-bold text-textPrimary">Overview</h1>
-      <p className="mt-2 font-body text-sm text-textSecondary">
-        {selectedChild
-          ? `A summary of ${selectedChild.name}'s recent activity will appear here.`
-          : "No child selected."}
-      </p>
-    </div>
-  );
-};
-
-export default Overview;
+const Overview = () => { const { selectedChild }=useOutletContext(); return <div><h1 className="font-heading text-2xl font-bold text-textPrimary">Parent Dashboard</h1>{selectedChild?<div className="mt-6 rounded-2xl border border-border bg-surface p-6"><h2 className="font-heading text-xl font-semibold text-textPrimary">{selectedChild.profiles?.name}</h2><p className="mt-2 font-body text-sm text-textSecondary">{selectedChild.grade} - {selectedChild.class}</p></div>:<p className="mt-3 font-body text-sm text-textSecondary">No child is linked to your parent account yet. Please contact the school office.</p>}</div>}; export default Overview;

@@ -10,6 +10,7 @@ import Hero from "../components/Hero";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import VacationBanner from "../components/VacationBanner";
+import campusImage from "../assets/images/stis-campus.jpeg";
 
 const ICON_PROPS = { className: "h-9 w-9", strokeWidth: 1.75 };
 
@@ -61,6 +62,7 @@ const Home = () => {
       <Hero
         title="Welcome to S.T.I.S"
         subtitle="Nurturing excellence, character, and lifelong learning."
+        backgroundImage={campusImage}
       >
         <Button variant="secondary" to="/admissions">
           Apply Now

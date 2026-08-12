@@ -81,12 +81,6 @@ const Login = () => {
     }
   };
 
-  const ROLES = [
-    { value: "student", label: "Student" },
-    { value: "teacher", label: "Teacher" },
-    { value: "parent", label: "Parent" },
-    { value: "admin", label: "Admin" },
-  ];
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center bg-background px-4 py-12">
@@ -100,7 +94,7 @@ const Login = () => {
           <p className="mt-1 text-sm text-textSecondary">
             {mode === "login"
               ? "Sign in to access your dashboard."
-              : "Register to join the school portal."}
+              : "Create a student portal account. Parent, teacher, and admin accounts are created by the school."}
           </p>
         </div>
 
@@ -210,27 +204,6 @@ const Login = () => {
             </div>
           )}
 
-          {/* Role (register only) */}
-          {mode === "register" && (
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-textPrimary">
-                Register as
-              </label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="mt-1.5 w-full rounded-xl border border-border bg-white px-4 py-2.5 text-sm text-textPrimary outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
-              >
-                {ROLES.map((r) => (
-                  <option key={r.value} value={r.value}>
-                    {r.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
 
           <Button
             type="submit"

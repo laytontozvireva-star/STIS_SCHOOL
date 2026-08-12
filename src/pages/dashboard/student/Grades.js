@@ -1,12 +1,4 @@
-const Grades = () => {
-  return (
-    <div>
-      <h1 className="font-heading text-2xl font-bold text-textPrimary">Grades</h1>
-      <p className="mt-2 font-body text-sm text-textSecondary">
-        Your grades will appear here once connected to real data.
-      </p>
-    </div>
-  );
-};
-
-export default Grades;
+import { useEffect, useState } from "react";
+import { useAuth } from "../../../context/AuthContext";
+import { getMyStudent, getStudentGrades } from "../../../services/dashboardService";
+const Grades = () => { const { user } = useAuth(); const [grades,setGrades]=useState([]); const [message,setMessage]=useState("Loading grades..."); useEffect(()=>{(async()=>{try{const student=await getMyStudent(user.id);if(!student)return setMessage("Your student record has not been linked yet.");const rows=await getStudentGrades(student.id);setGrades(rows);setMessage(rows.length?"":"No grades have been recorded yet.");}catch(error){setMessage(error.message)}})()},[user.id]); return <div><h1 className="font-heading text-2xl font-bold text-textPrimary">Grades</h1>{message?<p className="mt-3 font-body text-sm text-textSecondary">{message}</p>:<div className="mt-6 overflow-x-auto rounded-xl border border-border bg-surface"><table className="w-full text-left font-body text-sm"><thead className="bg-background text-textSecondary"><tr><th className="p-4">Subject</th><th className="p-4">Term</th><th className="p-4">Score</th></tr></thead><tbody>{grades.map((grade)=><tr key={grade.id} className="border-t border-border"><td className="p-4 font-medium text-textPrimary">{grade.subject}</td><td className="p-4">{grade.term}</td><td className="p-4">{grade.score}%</td></tr>)}</tbody></table></div>}</div>}; export default Grades;

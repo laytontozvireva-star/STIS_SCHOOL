@@ -4,10 +4,10 @@ const Hero = ({ title, subtitle, backgroundImage, children, className = "" }) =>
       className={`relative flex min-h-[480px] lg:min-h-[560px] items-center justify-center overflow-hidden ${
         backgroundImage ? "bg-cover bg-center" : "bg-gradient-to-br from-primaryDark via-primary to-[#2a5497]"
       } ${className}`}
-      style={backgroundImage ? { backgroundImage: `url(${backgroundImage})` } : undefined}
+      style={backgroundImage ? { backgroundImage: `url(${backgroundImage})`, backgroundPosition: "center top" } : undefined}
     >
       {backgroundImage && (
-        <div className="absolute inset-0 bg-primaryDark/70 mix-blend-multiply" aria-hidden="true" />
+        <div className="absolute inset-0 bg-primaryDark/75 mix-blend-multiply" aria-hidden="true" />
       )}
 
       {/* Decorative background glow */}

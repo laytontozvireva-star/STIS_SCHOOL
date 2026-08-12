@@ -1,18 +1,4 @@
+import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-
-const Grades = () => {
-  const { selectedChild } = useOutletContext();
-
-  return (
-    <div>
-      <h1 className="font-heading text-2xl font-bold text-textPrimary">Grades</h1>
-      <p className="mt-2 font-body text-sm text-textSecondary">
-        {selectedChild
-          ? `${selectedChild.name}'s grades will appear here once connected to real data.`
-          : "No child selected."}
-      </p>
-    </div>
-  );
-};
-
-export default Grades;
+import { getStudentGrades } from "../../../services/dashboardService";
+const Grades = () => { const { selectedChild }=useOutletContext(); const [rows,setRows]=useState([]); const [message,setMessage]=useState(""); useEffect(()=>{if(!selectedChild){setMessage("No child selected.");return;}setMessage("Loading grades...");getStudentGrades(selectedChild.id).then((data)=>{setRows(data);setMessage(data.length?"":"No grades have been recorded yet.");}).catch((error)=>setMessage(error.message));},[selectedChild]); return <div><h1 className="font-heading text-2xl font-bold text-textPrimary">Grades</h1>{message?<p className="mt-3 font-body text-sm text-textSecondary">{message}</p>:<div className="mt-6 space-y-3">{rows.map((grade)=><div key={grade.id} className="flex justify-between rounded-xl border border-border bg-surface p-4"><span className="font-body text-sm text-textPrimary">{grade.subject}</span><span className="font-body text-sm font-semibold text-primary">{grade.score}%</span></div>)}</div>}</div>}; export default Grades;

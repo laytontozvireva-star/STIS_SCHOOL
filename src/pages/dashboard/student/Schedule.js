@@ -1,12 +1,4 @@
-const Schedule = () => {
-  return (
-    <div>
-      <h1 className="font-heading text-2xl font-bold text-textPrimary">Schedule</h1>
-      <p className="mt-2 font-body text-sm text-textSecondary">
-        Your class timetable will appear here once connected to real data.
-      </p>
-    </div>
-  );
-};
-
-export default Schedule;
+import { useEffect, useState } from "react";
+import { useAuth } from "../../../context/AuthContext";
+import { getClassSchedule, getMyStudent } from "../../../services/dashboardService";
+const Schedule = () => { const { user }=useAuth(); const [rows,setRows]=useState([]); const [message,setMessage]=useState("Loading timetable..."); useEffect(()=>{(async()=>{try{const student=await getMyStudent(user.id);if(!student)return setMessage("Your student record has not been linked yet.");const data=await getClassSchedule(student.grade,student.class);setRows(data);setMessage(data.length?"":"No timetable has been published for your class yet.");}catch(error){setMessage(error.message)}})()},[user.id]); return <div><h1 className="font-heading text-2xl font-bold text-textPrimary">Schedule</h1>{message?<p className="mt-3 font-body text-sm text-textSecondary">{message}</p>:<div className="mt-6 space-y-3">{rows.map((row)=><div key={row.id} className="rounded-xl border border-border bg-surface p-4"><p className="font-heading font-semibold text-textPrimary">{row.day} - {row.subject}</p><p className="mt-1 font-body text-sm text-textSecondary">{row.start_time} to {row.end_time}{row.room ? " - " + row.room : ""}</p></div>)}</div>}</div>}; export default Schedule;

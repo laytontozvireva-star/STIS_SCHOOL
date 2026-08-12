@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import Hero from "../components/Hero";
 import Card from "../components/Card";
 import Button from "../components/Button";
+import { getNewsPosts } from "../services/newsService";
 
 // Placeholder news items — no backend yet. Replace with data fetched via
 // services/api.js once available; Loader would be used for the fetch state.
@@ -44,6 +46,9 @@ const NEWS_ITEMS = [
 ];
 
 const News = () => {
+  const [publishedNews, setPublishedNews] = useState([]);
+  useEffect(() => { getNewsPosts().then(setPublishedNews).catch(() => {}); }, []);
+  const items = publishedNews.length ? publishedNews.map((post) => ({ ...post, date: new Date(post.published_at || post.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) })) : NEWS_ITEMS;
   return (
     <div>
       <Hero
@@ -53,7 +58,7 @@ const News = () => {
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {NEWS_ITEMS.map((item) => (
+          {items.map((item) => (
             <Card key={item.id} title={item.title} description={item.excerpt}>
               <div className="flex items-center justify-between">
                 <span className="font-body text-xs text-textSecondary">{item.date}</span>
