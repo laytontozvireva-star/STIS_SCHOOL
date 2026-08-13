@@ -3,6 +3,7 @@ import Hero from "../components/Hero";
 import Button from "../components/Button";
 import Loader from "../components/Loader";
 import { GRADE_OPTIONS, VACATION_PROGRAM, CONTACT_INFO } from "../utils/constants";
+import { submitAdmission } from "../services/admissionsService";
 
 const STEPS = [
   { number: "1", title: "Inquire", description: "Submit the form below or contact our admissions office." },
@@ -32,21 +33,31 @@ const Admissions = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // NOTE: No backend yet - this is a placeholder submission.
-    // Replace with a real API call via services/api.js once available.
+    setError("");
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+
+    try {
+      await submitAdmission({
+        fullName: formData.parentName,
+        email: formData.email,
+        phone: formData.phone,
+        gradeApplying: formData.grade,
+      });
       setSubmitted(true);
-    }, 800);
+    } catch (submissionError) {
+      setError("We could not submit your enquiry. Please try again or contact the school directly.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -141,6 +152,11 @@ const Admissions = () => {
               </p>
             ) : (
               <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+                {error && (
+                  <p role="alert" className="rounded-lg bg-red-50 p-3 font-body text-sm text-red-700">
+                    {error}
+                  </p>
+                )}
                 <div>
                   <label htmlFor="parentName" className="block font-body text-sm font-medium text-textPrimary">
                     Parent / Guardian Name

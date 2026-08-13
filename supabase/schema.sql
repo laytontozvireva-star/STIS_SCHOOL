@@ -102,6 +102,26 @@ CREATE TABLE IF NOT EXISTS public.admissions (
 );
 
 -- ================================================================
+-- ROLE CHECK HELPER
+-- SECURITY DEFINER prevents RLS policies from recursively querying profiles.
+-- ================================================================
+CREATE OR REPLACE FUNCTION public.has_role(required_role TEXT)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles
+    WHERE id = auth.uid() AND role = required_role
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.has_role(TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.has_role(TEXT) TO authenticated;
+-- ================================================================
 -- ROW LEVEL SECURITY (RLS)
 -- ================================================================
 
@@ -128,10 +148,7 @@ CREATE POLICY "Users can update own profile"
 CREATE POLICY "Admins can view all profiles"
   ON public.profiles FOR SELECT
   USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles p
-      WHERE p.id = auth.uid() AND p.role = 'admin'
-    )
+    public.has_role('admin')
   );
 
 -- ── Students ────────────────────────────────────────────────────
@@ -142,10 +159,7 @@ CREATE POLICY "Students can view own record"
 CREATE POLICY "Teachers and admins can view all students"
   ON public.students FOR SELECT
   USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles p
-      WHERE p.id = auth.uid() AND p.role IN ('teacher', 'admin')
-    )
+    (public.has_role('teacher') OR public.has_role('admin'))
   );
 
 -- ── Grades ──────────────────────────────────────────────────────
@@ -161,28 +175,19 @@ CREATE POLICY "Students can view own grades"
 CREATE POLICY "Teachers and admins can view all grades"
   ON public.grades FOR SELECT
   USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles p
-      WHERE p.id = auth.uid() AND p.role IN ('teacher', 'admin')
-    )
+    (public.has_role('teacher') OR public.has_role('admin'))
   );
 
 CREATE POLICY "Teachers can insert grades"
   ON public.grades FOR INSERT
   WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM public.profiles p
-      WHERE p.id = auth.uid() AND p.role IN ('teacher', 'admin')
-    )
+    (public.has_role('teacher') OR public.has_role('admin'))
   );
 
 CREATE POLICY "Teachers can update grades"
   ON public.grades FOR UPDATE
   USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles p
-      WHERE p.id = auth.uid() AND p.role IN ('teacher', 'admin')
-    )
+    (public.has_role('teacher') OR public.has_role('admin'))
   );
 
 -- ── Attendance ──────────────────────────────────────────────────
@@ -198,10 +203,7 @@ CREATE POLICY "Students can view own attendance"
 CREATE POLICY "Teachers and admins can manage attendance"
   ON public.attendance FOR ALL
   USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles p
-      WHERE p.id = auth.uid() AND p.role IN ('teacher', 'admin')
-    )
+    (public.has_role('teacher') OR public.has_role('admin'))
   );
 
 -- ── Admissions ──────────────────────────────────────────────────
@@ -214,10 +216,7 @@ CREATE POLICY "Anyone can submit admission"
 CREATE POLICY "Admins can manage admissions"
   ON public.admissions FOR ALL
   USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles p
-      WHERE p.id = auth.uid() AND p.role = 'admin'
-    )
+    public.has_role('admin')
   );
 
 
@@ -246,8 +245,8 @@ CREATE POLICY "Anyone can view active vacation posts"
 
 CREATE POLICY "Admins can manage vacation posts"
   ON public.vacation_posts FOR ALL
-  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+  USING (public.has_role('admin'))
+  WITH CHECK (public.has_role('admin'));
 
 
 -- Vacation flyer uploads (run this section in Supabase before using Add flyer)
@@ -260,7 +259,7 @@ CREATE POLICY "Admins can upload vacation flyers"
   ON storage.objects FOR INSERT TO authenticated
   WITH CHECK (
     bucket_id = 'vacation-flyers' AND
-    EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
+    public.has_role('admin')
   );
 
 DROP POLICY IF EXISTS "Anyone can view vacation flyers" ON storage.objects;
@@ -306,30 +305,30 @@ ALTER TABLE public.class_schedule ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Parents can view their children" ON public.parent_students;
 CREATE POLICY "Parents can view their children" ON public.parent_students FOR SELECT
-  USING (parent_id = auth.uid() OR EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+  USING (parent_id = auth.uid() OR public.has_role('admin'));
 
 DROP POLICY IF EXISTS "Admins can manage parent links" ON public.parent_students;
 CREATE POLICY "Admins can manage parent links" ON public.parent_students FOR ALL
-  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+  USING (public.has_role('admin'))
+  WITH CHECK (public.has_role('admin'));
 
 DROP POLICY IF EXISTS "Teachers and admins can view teacher classes" ON public.teacher_classes;
 CREATE POLICY "Teachers and admins can view teacher classes" ON public.teacher_classes FOR SELECT
-  USING (EXISTS (SELECT 1 FROM public.teachers t WHERE t.id = teacher_id AND t.profile_id = auth.uid()) OR EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+  USING (EXISTS (SELECT 1 FROM public.teachers t WHERE t.id = teacher_id AND t.profile_id = auth.uid()) OR public.has_role('admin'));
 
 DROP POLICY IF EXISTS "Admins can manage teacher classes" ON public.teacher_classes;
 CREATE POLICY "Admins can manage teacher classes" ON public.teacher_classes FOR ALL
-  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+  USING (public.has_role('admin'))
+  WITH CHECK (public.has_role('admin'));
 
 DROP POLICY IF EXISTS "Students can view own schedule" ON public.class_schedule;
 CREATE POLICY "Students can view own schedule" ON public.class_schedule FOR SELECT
-  USING (EXISTS (SELECT 1 FROM public.students s WHERE s.profile_id = auth.uid() AND s.grade = class_schedule.grade AND s.class = class_schedule.class) OR EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role IN ('teacher','admin')));
+  USING (EXISTS (SELECT 1 FROM public.students s WHERE s.profile_id = auth.uid() AND s.grade = class_schedule.grade AND s.class = class_schedule.class) OR (public.has_role('teacher') OR public.has_role('admin')));
 
 DROP POLICY IF EXISTS "Admins can manage schedules" ON public.class_schedule;
 CREATE POLICY "Admins can manage schedules" ON public.class_schedule FOR ALL
-  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+  USING (public.has_role('admin'))
+  WITH CHECK (public.has_role('admin'));
 
 DROP POLICY IF EXISTS "Parents can view linked student grades" ON public.grades;
 CREATE POLICY "Parents can view linked student grades" ON public.grades FOR SELECT
@@ -341,13 +340,13 @@ CREATE POLICY "Parents can view linked student attendance" ON public.attendance 
 
 DROP POLICY IF EXISTS "Admins can manage students" ON public.students;
 CREATE POLICY "Admins can manage students" ON public.students FOR ALL
-  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+  USING (public.has_role('admin'))
+  WITH CHECK (public.has_role('admin'));
 
 DROP POLICY IF EXISTS "Admins can manage teachers" ON public.teachers;
 CREATE POLICY "Admins can manage teachers" ON public.teachers FOR ALL
-  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+  USING (public.has_role('admin'))
+  WITH CHECK (public.has_role('admin'));
 
 -- Public signup always creates a student. Privileged accounts must be provisioned by the school.
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -390,15 +389,15 @@ DROP POLICY IF EXISTS "Anyone can view gallery images" ON public.gallery_images;
 CREATE POLICY "Anyone can view gallery images" ON public.gallery_images FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Admins can manage gallery images" ON public.gallery_images;
 CREATE POLICY "Admins can manage gallery images" ON public.gallery_images FOR ALL
-  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+  USING (public.has_role('admin'))
+  WITH CHECK (public.has_role('admin'));
 
 DROP POLICY IF EXISTS "Anyone can view news posts" ON public.news_posts;
 CREATE POLICY "Anyone can view news posts" ON public.news_posts FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Admins can manage news posts" ON public.news_posts;
 CREATE POLICY "Admins can manage news posts" ON public.news_posts FOR ALL
-  USING (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+  USING (public.has_role('admin'))
+  WITH CHECK (public.has_role('admin'));
 
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('gallery-images', 'gallery-images', true)
@@ -406,10 +405,10 @@ ON CONFLICT (id) DO UPDATE SET public = true;
 
 DROP POLICY IF EXISTS "Admins can upload gallery images" ON storage.objects;
 CREATE POLICY "Admins can upload gallery images" ON storage.objects FOR INSERT TO authenticated
-  WITH CHECK (bucket_id = 'gallery-images' AND EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+  WITH CHECK (bucket_id = 'gallery-images' AND public.has_role('admin'));
 DROP POLICY IF EXISTS "Admins can delete gallery images" ON storage.objects;
 CREATE POLICY "Admins can delete gallery images" ON storage.objects FOR DELETE TO authenticated
-  USING (bucket_id = 'gallery-images' AND EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+  USING (bucket_id = 'gallery-images' AND public.has_role('admin'));
 DROP POLICY IF EXISTS "Anyone can view gallery image files" ON storage.objects;
 CREATE POLICY "Anyone can view gallery image files" ON storage.objects FOR SELECT
   USING (bucket_id = 'gallery-images');
@@ -439,8 +438,8 @@ CREATE POLICY "Anyone can view events"
 DROP POLICY IF EXISTS "Admins can manage events" ON public.events;
 CREATE POLICY "Admins can manage events"
   ON public.events FOR ALL
-  USING  (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+  USING  (public.has_role('admin'))
+  WITH CHECK (public.has_role('admin'));
 
 -- ================================================================
 -- ADMIN ACCOUNT PROVISIONING EDGE FUNCTION
@@ -449,3 +448,30 @@ CREATE POLICY "Admins can manage events"
 -- create a teacher, parent, or administrator account. Never expose the
 -- SUPABASE_SERVICE_ROLE_KEY in the React application.
 -- ================================================================
+
+-- ================================================================
+-- CONTACT MESSAGES
+-- Run this section in Supabase SQL Editor before deploying the contact form.
+-- ================================================================
+CREATE TABLE IF NOT EXISTS public.contact_messages (
+  id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name       TEXT NOT NULL,
+  email      TEXT NOT NULL,
+  message    TEXT NOT NULL,
+  status     TEXT NOT NULL DEFAULT 'new'
+               CHECK (status IN ('new', 'in_progress', 'resolved')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can submit contact messages" ON public.contact_messages;
+CREATE POLICY "Anyone can submit contact messages"
+  ON public.contact_messages FOR INSERT
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Admins can manage contact messages" ON public.contact_messages;
+CREATE POLICY "Admins can manage contact messages"
+  ON public.contact_messages FOR ALL
+  USING (public.has_role('admin'))
+  WITH CHECK (public.has_role('admin'));

@@ -51,7 +51,7 @@ const Gallery = () => {
 
   useEffect(() => { getGalleryImages().then(setUploadedItems).catch(() => {}); }, []);
 
-  const allItems = [...uploadedItems, ...GALLERY_ITEMS];
+  const allItems = [...uploadedItems.map((item) => ({ ...item, image: item.image_url })), ...GALLERY_ITEMS];
 
   const filteredItems =
     activeCategory === "All"

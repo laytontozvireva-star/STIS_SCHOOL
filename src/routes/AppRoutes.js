@@ -40,6 +40,7 @@ import ManageGallery from "../pages/dashboard/admin/ManageGallery";
 import ManageNews from "../pages/dashboard/admin/ManageNews";
 import ManageEvents from "../pages/dashboard/admin/ManageEvents";
 import ManageAccounts from "../pages/dashboard/admin/ManageAccounts";
+import ManageContactMessages from "../pages/dashboard/admin/ManageContactMessages";
 
 const AppRoutes = () => {
   return (
@@ -117,6 +118,7 @@ const AppRoutes = () => {
         <Route path="news" element={<ManageNews />} />
         <Route path="events" element={<ManageEvents />} />
         <Route path="accounts" element={<ManageAccounts />} />
+        <Route path="contact-messages" element={<ManageContactMessages />} />
       </Route>
     </Routes>
   );

@@ -12,6 +12,7 @@ import {
   Compass,
 } from "lucide-react";
 import { CONTACT_INFO } from "../utils/constants";
+import { submitContactMessage } from "../services/contactMessagesService";
 
 /* ─── derived URLs ──────────────────────────────────────────────────────── */
 const whatsappUrl = `https://wa.me/263${CONTACT_INFO.whatsapp
@@ -67,20 +68,26 @@ const Contact = () => {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // NOTE: No backend yet — placeholder submission, same pattern as Admissions form.
+    setError("");
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+
+    try {
+      await submitContactMessage(formData);
       setSubmitted(true);
-    }, 800);
+    } catch (submissionError) {
+      setError("We could not send your message. Please try again or contact the school directly.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -160,6 +167,7 @@ const Contact = () => {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+                {error && <p role="alert" className="rounded-lg bg-red-50 p-3 font-body text-sm text-red-700">{error}</p>}
                 <div>
                   <label
                     htmlFor="contact-name"
