@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Hero from "../components/Hero";
+import celebrationImage from "../assets/images/gallery/stis-anniversary-celebration.webp";
 
 const DEPARTMENTS = ["All", "Administration", "Sciences", "Mathematics", "Humanities", "Languages", "Arts", "Sports"];
 
@@ -27,6 +28,7 @@ const Staff = () => {
       <Hero
         title="Our Staff"
         subtitle="Meet the dedicated educators and administrators who guide our students."
+        backgroundImage={celebrationImage}
       />
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Hero from "../components/Hero";
+import schoolGatheringImage from "../assets/images/gallery/stis-16.webp";
 import Button from "../components/Button";
 import Loader from "../components/Loader";
 import {
@@ -95,6 +96,7 @@ const Contact = () => {
       <Hero
         title="Contact Us"
         subtitle="We'd love to hear from you — reach out with any questions."
+        backgroundImage={schoolGatheringImage}
       />
 
       {/* ── Quick-contact + form ────────────────────────────────────────── */}

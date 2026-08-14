@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   User,
@@ -16,6 +16,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { getAvatarUrl, uploadAvatar } from "../services/profileService";
 
 /* ── Helper: get initials ── */
 const getInitials = (name) =>
@@ -75,6 +76,10 @@ const Profile = () => {
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
+  const fileInputRef = useRef(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
 
   /* Local editable copy of profile data */
   const [form, setForm] = useState({
@@ -97,6 +102,45 @@ const Profile = () => {
     setEditing(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
+  };
+
+  useEffect(() => {
+    let active = true;
+    if (!user?.avatar_path) {
+      setAvatarUrl(null);
+      return undefined;
+    }
+    getAvatarUrl(user.avatar_path)
+      .then((url) => { if (active) setAvatarUrl(url); })
+      .catch(() => { if (active) setAvatarUrl(null); });
+    return () => { active = false; };
+  }, [user?.avatar_path]);
+
+  const handleAvatarChange = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setAvatarError("Please choose an image file.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarError("Please choose an image smaller than 5 MB.");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    setAvatarError("");
+    try {
+      const url = await uploadAvatar(user.id, file);
+      setAvatarUrl(url);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      setAvatarError(error.message || "Could not upload your profile photo.");
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   const tabs = [
@@ -143,16 +187,26 @@ const Profile = () => {
             <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm text-center">
               {/* Avatar */}
               <div className="relative inline-block">
-                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-primary to-[#0D1F45] text-3xl font-bold text-white shadow-md mx-auto">
-                  {getInitials(form.name)}
-                </div>
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Profile" className="h-24 w-24 rounded-full object-cover shadow-md" />
+                ) : (
+                  <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-primary to-[#0D1F45] text-3xl font-bold text-white shadow-md">
+                    {getInitials(form.name)}
+                  </div>
+                )}
+                <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/webp" onChange={handleAvatarChange} className="sr-only" />
                 <button
-                  title="Change avatar"
-                  className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white shadow hover:bg-primary/90 transition"
+                  type="button"
+                  title="Change profile photo"
+                  aria-label="Change profile photo"
+                  disabled={uploadingAvatar}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white shadow transition hover:bg-primary/90 disabled:cursor-wait disabled:opacity-70"
                 >
-                  <Camera className="h-4 w-4" />
+                  {uploadingAvatar ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Camera className="h-4 w-4" />}
                 </button>
               </div>
+              {avatarError && <p className="mt-3 text-xs font-medium text-red-600" role="alert">{avatarError}</p>}
 
               {/* Name + role */}
               <h2 className="mt-4 text-lg font-bold font-heading text-textPrimary">

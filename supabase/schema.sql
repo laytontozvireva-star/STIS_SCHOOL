@@ -475,3 +475,24 @@ CREATE POLICY "Admins can manage contact messages"
   ON public.contact_messages FOR ALL
   USING (public.has_role('admin'))
   WITH CHECK (public.has_role('admin'));
+-- ================================================================
+-- PROFILE AVATARS
+-- Run this section in Supabase SQL Editor before enabling photo uploads.
+-- ================================================================
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS avatar_path TEXT;
+GRANT UPDATE (avatar_path) ON public.profiles TO authenticated;
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('avatars', 'avatars', false)
+ON CONFLICT (id) DO UPDATE SET public = false;
+
+DROP POLICY IF EXISTS "Users can upload own avatars" ON storage.objects;
+CREATE POLICY "Users can upload own avatars" ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+DROP POLICY IF EXISTS "Users can update own avatars" ON storage.objects;
+CREATE POLICY "Users can update own avatars" ON storage.objects FOR UPDATE TO authenticated
+  USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text)
+  WITH CHECK (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+DROP POLICY IF EXISTS "Users can view own avatars" ON storage.objects;
+CREATE POLICY "Users can view own avatars" ON storage.objects FOR SELECT TO authenticated
+  USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);

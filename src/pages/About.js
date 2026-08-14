@@ -1,4 +1,5 @@
 import Hero from "../components/Hero";
+import campusImage from "../assets/images/gallery/stis-12.webp";
 import Card from "../components/Card";
 import Button from "../components/Button";
 
@@ -27,6 +28,7 @@ const About = () => {
       <Hero
         title="About Our School"
         subtitle="Learn about our history, mission, and the values that guide us."
+        backgroundImage={campusImage}
       />
 
       {/* Mission & Vision */}

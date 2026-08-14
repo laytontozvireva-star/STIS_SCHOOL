@@ -9,12 +9,12 @@ import logo from "../assets/images/logo.webp";
 const desktopLinkClasses = ({ isActive }) =>
   [
     "group relative px-1 py-2 text-sm font-semibold font-body transition-colors duration-300",
-    isActive ? "text-primary" : "text-textSecondary hover:text-primary",
+    isActive ? "text-white" : "text-white/80 hover:text-white",
   ].join(" ");
 
 const DesktopLinkUnderline = ({ isActive }) => (
   <span
-    className={`absolute -bottom-1 left-0 h-0.5 bg-secondary transition-all duration-300 ${
+    className={`absolute -bottom-1 left-0 h-px bg-secondary transition-all duration-300 ${
       isActive ? "w-full" : "w-0 group-hover:w-full"
     }`}
   />
@@ -69,7 +69,7 @@ const Navbar = () => {
       : "U";
 
   return (
-    <header className="sticky top-0 z-50 glass border-b border-border/50">
+    <header className="sticky top-0 z-50 border-b border-white/20 bg-primaryDark/55 shadow-lg shadow-primaryDark/10 backdrop-blur-sm">
       <nav
         aria-label="Primary"
         className="mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6 lg:h-20 lg:px-8"
@@ -85,7 +85,7 @@ const Navbar = () => {
             alt="School logo"
             className="h-10 w-10 object-contain lg:h-12 lg:w-12"
           />
-          <span className="hidden font-heading text-lg font-bold text-textPrimary md:block">
+          <span className="hidden font-heading text-lg font-bold text-white md:block">
             S.T.I.S
           </span>
         </Link>
@@ -204,7 +204,7 @@ const Navbar = () => {
             aria-expanded={isOpen}
             aria-controls="mobile-menu"
             aria-label={isOpen ? "Close main menu" : "Open main menu"}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-textPrimary transition-colors duration-200 hover:bg-background lg:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-white transition-colors duration-200 hover:bg-white/10 lg:hidden"
           >
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>

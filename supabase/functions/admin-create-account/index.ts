@@ -25,32 +25,47 @@ Deno.serve(async (request) => {
 
     const { name, email, password, role, subject, department } = await request.json();
     const allowedRoles = ["teacher", "parent", "admin"];
-    if (!name?.trim() || !email?.trim() || !password || !allowedRoles.includes(role)) {
-      throw new Error("Name, email, password, and a valid account role are required.");
+    if (!name?.trim() || !email?.trim() || !allowedRoles.includes(role)) {
+      throw new Error("Name, email, and a valid account role are required.");
     }
-    if (password.length < 8) throw new Error("Password must be at least 8 characters.");
+    if (role !== "teacher" && (!password || password.length < 8)) {
+      throw new Error("A temporary password of at least 8 characters is required.");
+    }
 
     const adminClient = createClient(url, serviceKey);
-    const { data: created, error: createError } = await adminClient.auth.admin.createUser({
-      email: email.trim(), password, email_confirm: true, user_metadata: { name: name.trim() },
-    });
-    if (createError || !created.user) throw createError ?? new Error("Could not create the account.");
+    let userId: string;
+    if (role === "teacher") {
+      const { data: invitation, error: invitationError } = await adminClient.auth.admin.inviteUserByEmail(email.trim(), {
+        data: { name: name.trim() },
+      });
+      if (invitationError || !invitation.user) throw invitationError ?? new Error("Could not send the teacher invitation.");
+      userId = invitation.user.id;
+    } else {
+      const { data: created, error: createError } = await adminClient.auth.admin.createUser({
+        email: email.trim(), password, email_confirm: true, user_metadata: { name: name.trim() },
+      });
+      if (createError || !created.user) throw createError ?? new Error("Could not create the account.");
+      userId = created.user.id;
+    }
 
     const { error: roleError } = await adminClient.from("profiles")
       .update({ name: name.trim(), email: email.trim(), role })
-      .eq("id", created.user.id);
+      .eq("id", userId);
     if (roleError) throw roleError;
 
     if (role === "teacher") {
       const { error: teacherError } = await adminClient.from("teachers").insert({
-        profile_id: created.user.id,
+        profile_id: userId,
         subject: subject?.trim() || null,
         department: department?.trim() || null,
       });
       if (teacherError) throw teacherError;
     }
 
-    return Response.json({ message: `${role[0].toUpperCase()}${role.slice(1)} account created.` }, { headers: corsHeaders });
+    const message = role === "teacher"
+      ? "Teacher invitation sent. The teacher must use the email link to set a password."
+      : `${role[0].toUpperCase()}${role.slice(1)} account created.`;
+    return Response.json({ message }, { headers: corsHeaders });
   } catch (error) {
     return Response.json({ error: error.message || "Could not create account." }, { status: 400, headers: corsHeaders });
   }

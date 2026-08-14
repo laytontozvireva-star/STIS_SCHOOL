@@ -1,4 +1,5 @@
 import Hero from "../components/Hero";
+import scienceLabImage from "../assets/images/gallery/stis-6.webp";
 import Card from "../components/Card";
 import Button from "../components/Button";
 
@@ -41,6 +42,7 @@ const Departments = () => {
       <Hero
         title="Departments"
         subtitle="Explore the academic departments that shape our curriculum."
+        backgroundImage={scienceLabImage}
       />
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">

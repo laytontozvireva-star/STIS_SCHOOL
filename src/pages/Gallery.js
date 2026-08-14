@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Hero from "../components/Hero";
+import galleryHeroImage from "../assets/images/gallery/stis-18.webp";
 import cakeImage from "../assets/images/gallery/stis-anniversary-cake.webp";
 import teamImage from "../assets/images/gallery/stis-anniversary-team.webp";
 import celebrationImage from "../assets/images/gallery/stis-anniversary-celebration.webp";
@@ -63,6 +64,7 @@ const Gallery = () => {
       <Hero
         title="Gallery"
         subtitle="Moments from campus life, events, and student achievements."
+        backgroundImage={galleryHeroImage}
       />
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
@@ -94,7 +96,7 @@ const Gallery = () => {
               <img
                 src={item.image}
                 alt={item.title}
-                className="h-56 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                className="aspect-[4/3] w-full object-cover object-center transition-transform duration-300 group-hover:scale-105" loading="lazy" decoding="async"
               />
               <div className="p-4">
                 <h3 className="font-heading text-sm font-semibold text-textPrimary">

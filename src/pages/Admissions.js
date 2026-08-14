@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Hero from "../components/Hero";
+import campusImage from "../assets/images/gallery/stis-12.webp";
 import Button from "../components/Button";
 import Loader from "../components/Loader";
 import { GRADE_OPTIONS, VACATION_PROGRAM, CONTACT_INFO } from "../utils/constants";
@@ -65,6 +66,7 @@ const Admissions = () => {
       <Hero
         title="Admissions"
         subtitle="Begin your child's journey with us. Here's how to apply."
+        backgroundImage={campusImage}
       />
 
       {/* Steps */}

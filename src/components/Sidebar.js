@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { LogOut, Menu, X } from "lucide-react";
+import { House, LogOut, Menu, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 // `links` shape: [{ label: "Grades", to: "/dashboard/student/grades", icon: SomeLucideIcon }]
@@ -84,6 +84,10 @@ const Sidebar = ({ links = [], title = "Dashboard" }) => {
           <NavList onNavigate={closeDrawer} />
         </nav>
         <div className="border-t border-border p-3">
+                    <NavLink to="/" onClick={closeDrawer} className="mb-1 flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium font-body text-textSecondary transition-colors duration-200 hover:bg-background hover:text-primary">
+            <House className="h-4 w-4 shrink-0" />
+            Back to Website
+          </NavLink>
           <button
             type="button"
             onClick={handleLogout}
@@ -104,6 +108,10 @@ const Sidebar = ({ links = [], title = "Dashboard" }) => {
           <NavList />
         </nav>
         <div className="border-t border-border p-3">
+                    <NavLink to="/" onClick={closeDrawer} className="mb-1 flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium font-body text-textSecondary transition-colors duration-200 hover:bg-background hover:text-primary">
+            <House className="h-4 w-4 shrink-0" />
+            Back to Website
+          </NavLink>
           <button
             type="button"
             onClick={handleLogout}

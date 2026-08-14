@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Hero from "../components/Hero";
+import eventImage from "../assets/images/gallery/stis-anniversary-team.webp";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import Loader from "../components/Loader";
@@ -113,6 +114,7 @@ const Events = () => {
       <Hero
         title="Events"
         subtitle="See what's happening on campus — upcoming and past events."
+        backgroundImage={eventImage}
       />
 
       {/* ── Upcoming Events ─────────────────────────────────────────── */}

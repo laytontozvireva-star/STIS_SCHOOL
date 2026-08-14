@@ -1,4 +1,5 @@
 import Hero from "../components/Hero";
+import learningImage from "../assets/images/gallery/stis-19.webp";
 import Card from "../components/Card";
 import Button from "../components/Button";
 
@@ -41,6 +42,7 @@ const Academics = () => {
       <Hero
         title="Academics"
         subtitle="A curriculum built to challenge, support, and inspire every student, from Form 1 through A'Level."
+        backgroundImage={learningImage}
       />
 
       {/* Grade levels */}

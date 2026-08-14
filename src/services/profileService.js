@@ -26,3 +26,20 @@ export const updateProfile = async (userId, updates) => {
   if (error) throw error;
   return data;
 };
+export const getAvatarUrl = async (path) => {
+  if (!path) return null;
+  const { data, error } = await supabase.storage.from("avatars").createSignedUrl(path, 60 * 60);
+  if (error) throw error;
+  return data.signedUrl;
+};
+
+export const uploadAvatar = async (userId, file) => {
+  const path = `${userId}/avatar`;
+  const { error: uploadError } = await supabase.storage
+    .from("avatars")
+    .upload(path, file, { cacheControl: "3600", contentType: file.type, upsert: true });
+  if (uploadError) throw uploadError;
+
+  await updateProfile(userId, { avatar_path: path });
+  return getAvatarUrl(path);
+};

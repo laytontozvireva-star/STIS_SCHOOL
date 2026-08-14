@@ -1,64 +1,43 @@
+import defaultHeroImage from "../assets/images/stis-campus.webp";
+
 const Hero = ({ title, subtitle, backgroundImage, children, className = "" }) => {
+  const heroImage = backgroundImage || defaultHeroImage;
+
   return (
     <section
-      className={`relative flex min-h-[480px] lg:min-h-[560px] items-center justify-center overflow-hidden ${
-        !backgroundImage ? "bg-gradient-to-br from-primaryDark via-primary to-[#2a5497]" : ""
-      } ${className}`}
+      className={`relative isolate overflow-hidden bg-primaryDark py-20 sm:py-24 lg:py-28 ${className}`}
     >
-      {backgroundImage && (
-        <>
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${backgroundImage})` }}
-          />
-          {/* Clean gradient overlay for readability without ruining image colors */}
-          <div className="absolute inset-0 bg-gradient-to-t from-primaryDark/95 via-primaryDark/60 to-black/40" aria-hidden="true" />
-        </>
-      )}
+      <div
+        className="absolute inset-0 -z-30 bg-cover bg-center bg-no-repeat opacity-70"
+        style={{ backgroundImage: `url(${heroImage})` }}
+      />
 
-      {/* Decorative background glow */}
-      {!backgroundImage && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-white/5 blur-3xl" />
-          <div className="absolute bottom-[10%] right-[5%] w-[40%] h-[40%] rounded-full bg-secondary/10 blur-3xl" />
+      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_15%_20%,rgba(245,166,35,0.18),transparent_26%),radial-gradient(circle_at_85%_65%,rgba(69,113,178,0.25),transparent_32%),linear-gradient(120deg,rgba(13,31,69,0.58)_0%,rgba(27,63,122,0.50)_56%,rgba(37,79,142,0.44)_100%)]" aria-hidden="true" />
+      <div className="absolute -left-20 top-10 -z-10 h-72 w-72 rounded-full border border-white/10" aria-hidden="true" />
+      <div className="absolute -right-12 bottom-[-7rem] -z-10 h-80 w-80 rounded-full border-[24px] border-secondary/20" aria-hidden="true" />
+
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl rounded-[2rem] border border-white/15 bg-white/[0.07] px-6 py-10 text-center shadow-2xl shadow-primaryDark/30 backdrop-blur-sm sm:px-12 sm:py-12">
+          <div className="animate-fade-in mx-auto mb-5 h-1 w-14 rounded-full bg-secondary" />
+          {title && (
+            <h1 className="animate-slide-up font-heading text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
+              {title}
+            </h1>
+          )}
+          {subtitle && (
+            <p className="animate-slide-up-delay-1 mx-auto mt-5 max-w-2xl font-body text-base leading-relaxed text-blue-100 sm:text-lg">
+              {subtitle}
+            </p>
+          )}
+          {children && (
+            <div className="animate-slide-up-delay-2 mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+              {children}
+            </div>
+          )}
         </div>
-      )}
-
-      <div className="relative z-10 mx-auto max-w-3xl px-4 py-20 text-center sm:px-6 lg:px-8">
-        {title && (
-          <h1 className="animate-slide-up font-heading text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl drop-shadow-sm">
-            {title}
-          </h1>
-        )}
-
-        {subtitle && (
-          <p className="animate-slide-up-delay-1 mt-6 font-body text-lg text-gray-200 sm:text-xl drop-shadow-sm max-w-2xl mx-auto">
-            {subtitle}
-          </p>
-        )}
-
-        {children && (
-          <div className="animate-slide-up-delay-2 mt-10 flex flex-col sm:flex-row justify-center gap-4">
-            {children}
-          </div>
-        )}
       </div>
 
-      {/* Bottom Wave SVG */}
-      <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-10 pointer-events-none text-background">
-        <svg
-          className="relative block w-full h-[40px] sm:h-[60px] lg:h-[80px]"
-          data-name="Layer 1"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 1200 120"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118,130.42,120.7,192.5,108.6,238.16,99.64,281.82,75.31,321.39,56.44Z"
-            fill="currentColor"
-          ></path>
-        </svg>
-      </div>
+      <div className="absolute bottom-0 left-0 h-1 w-full bg-secondary" aria-hidden="true" />
     </section>
   );
 };

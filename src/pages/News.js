@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Hero from "../components/Hero";
+import celebrationImage from "../assets/images/gallery/stis-anniversary-celebration.webp";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
@@ -57,6 +58,7 @@ const News = () => {
       <Hero
         title="News"
         subtitle="Stay up to date with the latest announcements and happenings at our school."
+        backgroundImage={celebrationImage}
       />
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
