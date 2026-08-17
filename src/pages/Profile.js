@@ -90,10 +90,6 @@ const Profile = () => {
     bio: "A valued member of the school community.",
   });
 
-  if (!isAuthenticated) {
-    navigate("/login");
-    return null;
-  }
 
   const handleChange = (e) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -115,6 +111,16 @@ const Profile = () => {
       .catch(() => { if (active) setAvatarUrl(null); });
     return () => { active = false; };
   }, [user?.avatar_path]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const handleAvatarChange = async (event) => {
     const file = event.target.files?.[0];
