@@ -2,8 +2,20 @@ import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { House, LogOut, Menu, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import logo from "../assets/images/logo.webp";
 
 // `links` shape: [{ label: "Grades", to: "/dashboard/student/grades", icon: SomeLucideIcon }]
+const Brand = ({ compact = false }) => (
+  <div className={`flex items-center gap-3 ${compact ? "" : "px-5 py-5"}`}>
+    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white p-1.5 shadow-sm">
+      <img src={logo} alt="S.T.I.S school logo" className="h-full w-full object-contain" />
+    </span>
+    <div className="min-w-0">
+      <p className="font-heading text-lg font-bold tracking-wide text-white">S.T.I.S</p>
+      <p className="mt-0.5 truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-white/70">Sir Tshobs International</p>
+    </div>
+  </div>
+);
 const Sidebar = ({ links = [], title = "Dashboard" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { logout } = useAuth();
@@ -41,15 +53,15 @@ const Sidebar = ({ links = [], title = "Dashboard" }) => {
   return (
     <>
       {/* Mobile top bar with hamburger toggle */}
-      <div className="flex items-center justify-between border-b border-border bg-surface px-4 py-3 lg:hidden">
-        <h2 className="font-heading text-base font-semibold text-textPrimary">{title}</h2>
+      <div className="flex items-center justify-between border-b border-primary/20 bg-primary px-4 py-3 lg:hidden">
+        <Brand compact />
         <button
           type="button"
           onClick={() => setIsOpen(true)}
           aria-expanded={isOpen}
           aria-controls="sidebar-drawer"
           aria-label="Open dashboard menu"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-textPrimary hover:bg-background"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-white transition hover:bg-white/10"
         >
           <Menu className="h-5 w-5" />
         </button>
@@ -69,16 +81,9 @@ const Sidebar = ({ links = [], title = "Dashboard" }) => {
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <h2 className="font-heading text-lg font-semibold text-textPrimary">{title}</h2>
-          <button
-            type="button"
-            onClick={closeDrawer}
-            aria-label="Close dashboard menu"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-textPrimary hover:bg-background"
-          >
-            <X className="h-5 w-5" />
-          </button>
+        <div className="flex items-center justify-between bg-primary pr-4">
+          <Brand />
+          <button type="button" onClick={closeDrawer} aria-label="Close dashboard menu" className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-white transition hover:bg-white/10"><X className="h-5 w-5" /></button>
         </div>
         <nav aria-label="Dashboard navigation" className="p-3">
           <NavList onNavigate={closeDrawer} />

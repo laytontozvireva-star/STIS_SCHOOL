@@ -24,14 +24,21 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 -- Auto-create profile when a new auth user signs up
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+  account_role TEXT := COALESCE(NEW.raw_user_meta_data->>'role', 'student');
 BEGIN
   INSERT INTO public.profiles (id, name, email, role)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'name', 'New User'),
     NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'role', 'student')
+    account_role
   );
+
+  IF account_role = 'student' THEN
+    INSERT INTO public.students (profile_id) VALUES (NEW.id);
+  END IF;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
