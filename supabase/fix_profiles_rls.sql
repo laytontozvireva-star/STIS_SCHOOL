@@ -22,3 +22,7 @@ DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
 CREATE POLICY "Admins can view all profiles"
   ON public.profiles FOR SELECT
   USING (public.has_role('admin'));
+-- Persist each user's choices from the Profile > Notification Preferences tab.
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS notification_preferences JSONB NOT NULL
+  DEFAULT '{"email": true, "grades": true, "events": false, "announcements": true}'::jsonb;

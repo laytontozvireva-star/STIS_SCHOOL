@@ -17,6 +17,8 @@ import Events from "../pages/Events";
 import Staff from "../pages/Staff";
 import Contact from "../pages/Contact";
 import Login from "../pages/Login";
+import ForgotPassword from "../pages/ForgotPassword";
+import ResetPassword from "../pages/ResetPassword";
 import Profile from "../pages/Profile";
 
 import StudentOverview from "../pages/dashboard/student/Overview";
@@ -28,6 +30,7 @@ import TeacherOverview from "../pages/dashboard/teacher/Overview";
 import TeacherMyClasses from "../pages/dashboard/teacher/MyClasses";
 import TeacherGrades from "../pages/dashboard/teacher/Grades";
 import TeacherAttendance from "../pages/dashboard/teacher/Attendance";
+import TeacherStudents from "../pages/dashboard/teacher/Students";
 
 import ParentOverview from "../pages/dashboard/parent/Overview";
 import ParentGrades from "../pages/dashboard/parent/Grades";
@@ -58,6 +61,8 @@ const AppRoutes = () => {
         <Route path="staff" element={<Staff />} />
         <Route path="contact" element={<Contact />} />
         <Route path="login" element={<Login />} />
+        <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route path="reset-password" element={<ResetPassword />} />
         <Route path="profile" element={<Profile />} />
       </Route>
 
@@ -88,6 +93,7 @@ const AppRoutes = () => {
         <Route path="classes" element={<TeacherMyClasses />} />
         <Route path="grades" element={<TeacherGrades />} />
         <Route path="attendance" element={<TeacherAttendance />} />
+        <Route path="students" element={<TeacherStudents />} />
       </Route>
 
       <Route

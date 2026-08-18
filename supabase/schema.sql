@@ -496,3 +496,21 @@ CREATE POLICY "Users can update own avatars" ON storage.objects FOR UPDATE TO au
 DROP POLICY IF EXISTS "Users can view own avatars" ON storage.objects;
 CREATE POLICY "Users can view own avatars" ON storage.objects FOR SELECT TO authenticated
   USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);
+-- ================================================================
+-- PARENT SELF-REGISTRATION
+-- Give each enrolled student a unique student number and a private
+-- parent access code. Share the code only with that student's parent.
+-- Deploy the matching function with:
+--   supabase functions deploy parent-self-register
+-- ================================================================
+ALTER TABLE public.students ADD COLUMN IF NOT EXISTS student_number TEXT;
+ALTER TABLE public.students ADD COLUMN IF NOT EXISTS parent_access_code TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS students_student_number_unique
+  ON public.students (student_number)
+  WHERE student_number IS NOT NULL;
+-- ================================================================
+-- PROFILE NOTIFICATION PREFERENCES
+-- ================================================================
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS notification_preferences JSONB NOT NULL
+  DEFAULT '{"email": true, "grades": true, "events": false, "announcements": true}'::jsonb;

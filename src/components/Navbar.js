@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { Menu, X, ChevronDown, LayoutDashboard, LogOut, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { getAvatarUrl } from "../services/profileService";
 import { MAIN_NAV_LINKS } from "../utils/constants";
 import logo from "../assets/images/logo.webp";
 
@@ -33,6 +34,7 @@ const mobileLinkClasses = ({ isActive }) =>
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(null);
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
@@ -57,6 +59,20 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  useEffect(() => {
+    let active = true;
+
+    if (!user?.avatar_path) {
+      setAvatarUrl(null);
+      return undefined;
+    }
+
+    getAvatarUrl(user.avatar_path)
+      .then((url) => { if (active) setAvatarUrl(url); })
+      .catch(() => { if (active) setAvatarUrl(null); });
+
+    return () => { active = false; };
+  }, [user?.avatar_path]);
   // Get initials for avatar
   const getInitials = (name) =>
     name
@@ -67,6 +83,15 @@ const Navbar = () => {
           .toUpperCase()
           .slice(0, 2)
       : "U";
+
+  const Avatar = ({ className, textClassName }) =>
+    avatarUrl ? (
+      <img src={avatarUrl} alt="" className={`${className} object-cover`} />
+    ) : (
+      <span className={`${className} flex items-center justify-center bg-primary font-bold text-white ${textClassName}`}>
+        {getInitials(user?.name)}
+      </span>
+    );
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/20 bg-primaryDark/55 shadow-lg shadow-primaryDark/10 backdrop-blur-sm">
@@ -123,9 +148,7 @@ const Navbar = () => {
                 className="flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold font-body text-textPrimary transition-all duration-200 hover:border-primary/40 hover:bg-background"
               >
                 {/* Avatar circle */}
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
-                  {getInitials(user.name)}
-                </span>
+                <Avatar className="h-7 w-7 rounded-full" textClassName="text-xs" />
                 <span className="max-w-[120px] truncate">{user.name}</span>
                 <ChevronDown
                   className={`h-4 w-4 text-textSecondary transition-transform duration-200 ${
@@ -139,9 +162,7 @@ const Navbar = () => {
                 <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-2xl border border-border bg-surface shadow-xl animate-fade-in">
                   {/* User info header */}
                   <div className="flex items-center gap-3 border-b border-border px-4 py-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-                      {getInitials(user.name)}
-                    </span>
+                    <Avatar className="h-9 w-9 rounded-full" textClassName="text-sm" />
                     <div className="overflow-hidden">
                       <p className="truncate text-sm font-semibold text-textPrimary">
                         {user.name}
@@ -238,9 +259,7 @@ const Navbar = () => {
               <>
                 {/* User info */}
                 <div className="flex items-center gap-3 px-4 py-2">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-                    {getInitials(user.name)}
-                  </span>
+                  <Avatar className="h-9 w-9 rounded-full" textClassName="text-sm" />
                   <div>
                     <p className="text-sm font-semibold text-textPrimary">{user.name}</p>
                     <p className="text-xs capitalize text-textSecondary">{user.role}</p>

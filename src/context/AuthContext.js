@@ -82,6 +82,22 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const refreshProfile = async () => {
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (authUser) await loadUserProfile(authUser);
+  };
+
+  const requestPasswordReset = async (email) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) throw error;
+  };
+
+  const updatePassword = async (password) => {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) throw error;
+  };
   const value = {
     user,
     isAuthenticated: !!user,
@@ -89,6 +105,9 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    refreshProfile,
+    requestPasswordReset,
+    updatePassword,
   };
 
   return (

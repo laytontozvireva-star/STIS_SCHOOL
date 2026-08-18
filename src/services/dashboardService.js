@@ -13,3 +13,6 @@ export const getParentChildren = async () => result(await supabase.from("parent_
 export const getAdmissions = async () => result(await supabase.from("admissions").select("*").order("created_at", { ascending: false }));
 export const setAdmissionStatus = async (id, status) => result(await supabase.from("admissions").update({ status }).eq("id", id).select().single());
 export const getTeachers = async () => result(await supabase.from("teachers").select("id, subject, department, profiles(name, email)").order("created_at", { ascending: false }));
+export const getAllTeacherClasses = async () => result(await supabase.from("teacher_classes").select("*, teachers(id, profiles(name))").order("grade").order("class"));
+export const assignTeacherClass = async ({ teacherId, subject, grade, className, room }) => result(await supabase.from("teacher_classes").insert({ teacher_id: teacherId, subject, grade, class: className, room: room || null }).select().single());
+export const removeTeacherClass = async (id) => result(await supabase.from("teacher_classes").delete().eq("id", id));

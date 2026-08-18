@@ -16,7 +16,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { getAvatarUrl, uploadAvatar } from "../services/profileService";
+import { getAvatarUrl, updateProfile, uploadAvatar } from "../services/profileService";
 
 /* ── Helper: get initials ── */
 const getInitials = (name) =>
@@ -37,6 +37,19 @@ const roleBadge = {
   admin: "bg-purple-100 text-purple-700",
 };
 
+const DEFAULT_NOTIFICATION_PREFERENCES = {
+  email: true,
+  grades: true,
+  events: false,
+  announcements: true,
+};
+
+const NOTIFICATION_OPTIONS = [
+  { key: "email", label: "Email notifications", desc: "Receive updates via email" },
+  { key: "grades", label: "Grade updates", desc: "Notify when grades are posted" },
+  { key: "events", label: "Event reminders", desc: "Upcoming school events" },
+  { key: "announcements", label: "Announcements", desc: "General school announcements" },
+];
 /* ── Section wrapper ── */
 const Section = ({ title, icon: Icon, children }) => (
   <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
@@ -70,7 +83,7 @@ const Field = ({ label, value, editing, name, onChange, type = "text" }) => (
 
 /* ══════════════════════════════════════════════════════════════════ */
 const Profile = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
   const [editing, setEditing] = useState(false);
@@ -80,6 +93,9 @@ const Profile = () => {
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState("");
+  const [notificationPreferences, setNotificationPreferences] = useState(DEFAULT_NOTIFICATION_PREFERENCES);
+  const [savingNotifications, setSavingNotifications] = useState(false);
+  const [notificationError, setNotificationError] = useState("");
 
   /* Local editable copy of profile data */
   const [form, setForm] = useState({
@@ -113,6 +129,12 @@ const Profile = () => {
   }, [user?.avatar_path]);
 
   useEffect(() => {
+    setNotificationPreferences({
+      ...DEFAULT_NOTIFICATION_PREFERENCES,
+      ...(user?.notification_preferences || {}),
+    });
+  }, [user?.notification_preferences]);
+  useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
     }
@@ -140,6 +162,7 @@ const Profile = () => {
     try {
       const url = await uploadAvatar(user.id, file);
       setAvatarUrl(url);
+      await refreshProfile();
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (error) {
@@ -149,6 +172,21 @@ const Profile = () => {
     }
   };
 
+  const handleNotificationToggle = async (key) => {
+    const nextPreferences = { ...notificationPreferences, [key]: !notificationPreferences[key] };
+    setNotificationPreferences(nextPreferences);
+    setNotificationError("");
+    setSavingNotifications(true);
+    try {
+      await updateProfile(user.id, { notification_preferences: nextPreferences });
+      await refreshProfile();
+    } catch (error) {
+      setNotificationPreferences(notificationPreferences);
+      setNotificationError(error.message || "Could not save notification preferences.");
+    } finally {
+      setSavingNotifications(false);
+    }
+  };
   const tabs = [
     { id: "profile", label: "Profile Info" },
     { id: "security", label: "Security" },
@@ -436,14 +474,10 @@ const Profile = () => {
             {activeTab === "notifications" && (
               <Section title="Notification Preferences" icon={Bell}>
                 <div className="space-y-4">
-                  {[
-                    { label: "Email notifications", desc: "Receive updates via email", on: true },
-                    { label: "Grade updates", desc: "Notify when grades are posted", on: true },
-                    { label: "Event reminders", desc: "Upcoming school events", on: false },
-                    { label: "Announcements", desc: "General school announcements", on: true },
-                  ].map((item) => (
+                  {notificationError && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-600" role="alert">{notificationError}</p>}
+                  {NOTIFICATION_OPTIONS.map((item) => (
                     <div
-                      key={item.label}
+                      key={item.key}
                       className="flex items-center justify-between rounded-xl border border-border p-4"
                     >
                       <div>
@@ -454,13 +488,17 @@ const Profile = () => {
                       </div>
                       {/* Toggle */}
                       <button
-                        className={`relative h-6 w-11 rounded-full transition-colors duration-300 focus:outline-none ${
-                          item.on ? "bg-primary" : "bg-border"
+                        type="button"
+                        disabled={savingNotifications}
+                        aria-pressed={notificationPreferences[item.key]}
+                        onClick={() => handleNotificationToggle(item.key)}
+                        className={`relative h-6 w-11 rounded-full transition-colors duration-300 focus:outline-none disabled:cursor-wait disabled:opacity-60 ${
+                          notificationPreferences[item.key] ? "bg-primary" : "bg-border"
                         }`}
                       >
                         <span
                           className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-300 ${
-                            item.on ? "translate-x-5" : "translate-x-0.5"
+                            notificationPreferences[item.key] ? "translate-x-5" : "translate-x-0.5"
                           }`}
                         />
                       </button>

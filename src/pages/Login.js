@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { registerParent } from "../services/parentRegistrationService";
 import Button from "../components/Button";
 import Loader from "../components/Loader";
 
@@ -15,6 +16,8 @@ const Login = () => {
     password: "",
     confirmPassword: "",
     role: "student",
+    studentNumber: "",
+    accessCode: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -51,6 +54,10 @@ const Login = () => {
         setError("Passwords do not match.");
         return;
       }
+      if (formData.role === "parent" && (!formData.studentNumber.trim() || !formData.accessCode.trim())) {
+        setError("Please enter your child’s student number and parent access code.");
+        return;
+      }
       if (formData.password.length < 6) {
         setError("Password must be at least 6 characters.");
         return;
@@ -63,15 +70,24 @@ const Login = () => {
         await login({ email: formData.email, password: formData.password });
         // Navigation handled by the useEffect above once user is set
       } else {
-        await register({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          role: formData.role,
-        });
-        setSuccess(
-          "Account created! Please check your email to confirm your account, then log in."
-        );
+        if (formData.role === "parent") {
+          const result = await registerParent({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            studentNumber: formData.studentNumber,
+            accessCode: formData.accessCode,
+          });
+          setSuccess(result.message);
+        } else {
+          await register({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            role: "student",
+          });
+          setSuccess("Account created! Please check your email to confirm your account, then log in.");
+        }
         setMode("login");
       }
     } catch (err) {
@@ -131,6 +147,17 @@ const Login = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === "register" && (
+            <fieldset className="grid grid-cols-2 gap-3">
+              <legend className="mb-2 text-sm font-medium text-textPrimary">I am registering as</legend>
+              {[{ value: "student", label: "Student" }, { value: "parent", label: "Parent" }].map((role) => (
+                <label key={role.value} className={`cursor-pointer rounded-xl border px-4 py-2.5 text-center text-sm font-semibold ${formData.role === role.value ? "border-primary bg-primary/5 text-primary" : "border-border text-textSecondary"}`}>
+                  <input type="radio" name="role" value={role.value} checked={formData.role === role.value} onChange={handleChange} className="sr-only" />
+                  {role.label}
+                </label>
+              ))}
+            </fieldset>
+          )}
 
           {/* Name (register only) */}
           {mode === "register" && (
@@ -149,7 +176,20 @@ const Login = () => {
                 className="mt-1.5 w-full rounded-xl border border-border bg-white px-4 py-2.5 text-sm text-textPrimary outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
               />
             </div>
+          )}          {mode === "register" && formData.role === "parent" && (
+            <>
+              <div>
+                <label htmlFor="studentNumber" className="block text-sm font-medium text-textPrimary">Child’s student number</label>
+                <input id="studentNumber" name="studentNumber" type="text" value={formData.studentNumber} onChange={handleChange} placeholder="e.g. STIS-2026-001" className="mt-1.5 w-full rounded-xl border border-border bg-white px-4 py-2.5 text-sm text-textPrimary outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" />
+              </div>
+              <div>
+                <label htmlFor="accessCode" className="block text-sm font-medium text-textPrimary">Parent access code</label>
+                <input id="accessCode" name="accessCode" type="password" value={formData.accessCode} onChange={handleChange} autoComplete="off" className="mt-1.5 w-full rounded-xl border border-border bg-white px-4 py-2.5 text-sm text-textPrimary outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition" />
+                <p className="mt-1 text-xs text-textSecondary">Get this private code from the school.</p>
+              </div>
+            </>
           )}
+
 
           {/* Email */}
           <div>
@@ -224,7 +264,7 @@ const Login = () => {
         {/* Forgot password */}
         {mode === "login" && (
           <p className="mt-4 text-center text-sm text-textSecondary">
-            <Link to="#" className="text-primary hover:underline font-medium">
+            <Link to="/forgot-password" className="text-primary hover:underline font-medium">
               Forgot your password?
             </Link>
           </p>
