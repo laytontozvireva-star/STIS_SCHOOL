@@ -14,6 +14,9 @@ import {
   Lock,
   Bell,
   CheckCircle,
+  CalendarDays,
+  GraduationCap,
+  Megaphone,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getAvatarUrl, updateProfile, uploadAvatar } from "../services/profileService";
@@ -45,10 +48,10 @@ const DEFAULT_NOTIFICATION_PREFERENCES = {
 };
 
 const NOTIFICATION_OPTIONS = [
-  { key: "email", label: "Email notifications", desc: "Receive updates via email" },
-  { key: "grades", label: "Grade updates", desc: "Notify when grades are posted" },
-  { key: "events", label: "Event reminders", desc: "Upcoming school events" },
-  { key: "announcements", label: "Announcements", desc: "General school announcements" },
+  { key: "email", label: "Email notifications", desc: "Receive important updates in your inbox", icon: Mail, tone: "bg-blue-50 text-blue-600" },
+  { key: "grades", label: "Grade updates", desc: "Know when new results are posted", icon: GraduationCap, tone: "bg-violet-50 text-violet-600" },
+  { key: "events", label: "Event reminders", desc: "Get reminders for upcoming school events", icon: CalendarDays, tone: "bg-amber-50 text-amber-600" },
+  { key: "announcements", label: "Announcements", desc: "Receive important school notices", icon: Megaphone, tone: "bg-emerald-50 text-emerald-600" },
 ];
 /* ── Section wrapper ── */
 const Section = ({ title, icon: Icon, children }) => (
@@ -473,37 +476,28 @@ const Profile = () => {
             {/* ── TAB: Notifications ── */}
             {activeTab === "notifications" && (
               <Section title="Notification Preferences" icon={Bell}>
-                <div className="space-y-4">
-                  {notificationError && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-600" role="alert">{notificationError}</p>}
-                  {NOTIFICATION_OPTIONS.map((item) => (
-                    <div
-                      key={item.key}
-                      className="flex items-center justify-between rounded-xl border border-border p-4"
-                    >
-                      <div>
-                        <p className="text-sm font-semibold text-textPrimary">
-                          {item.label}
-                        </p>
-                        <p className="text-xs text-textSecondary">{item.desc}</p>
-                      </div>
-                      {/* Toggle */}
-                      <button
-                        type="button"
-                        disabled={savingNotifications}
-                        aria-pressed={notificationPreferences[item.key]}
-                        onClick={() => handleNotificationToggle(item.key)}
-                        className={`relative h-6 w-11 rounded-full transition-colors duration-300 focus:outline-none disabled:cursor-wait disabled:opacity-60 ${
-                          notificationPreferences[item.key] ? "bg-primary" : "bg-border"
-                        }`}
-                      >
-                        <span
-                          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-300 ${
-                            notificationPreferences[item.key] ? "translate-x-5" : "translate-x-0.5"
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  ))}
+                <div className="-mt-1 space-y-5">
+                  <div className="rounded-xl border border-primary/10 bg-primary/5 px-4 py-3">
+                    <p className="text-sm font-semibold text-textPrimary">Choose what you want to hear about</p>
+                    <p className="mt-1 text-xs leading-5 text-textSecondary">Your choices are saved automatically and apply to your account.</p>
+                  </div>
+                  {notificationError && <p className="rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-600" role="alert">{notificationError}</p>}
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {NOTIFICATION_OPTIONS.map((item) => {
+                      const Icon = item.icon;
+                      const enabled = notificationPreferences[item.key];
+                      return (
+                        <button key={item.key} type="button" disabled={savingNotifications} aria-pressed={enabled} onClick={() => handleNotificationToggle(item.key)} className={`group flex min-h-28 items-start gap-3 rounded-2xl border p-4 text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-wait disabled:opacity-60 ${enabled ? "border-primary/30 bg-primary/[0.03] shadow-sm" : "border-border bg-background hover:border-primary/20 hover:bg-surface"}`}>
+                          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${item.tone}`}><Icon className="h-5 w-5" /></span>
+                          <span className="min-w-0 flex-1">
+                            <span className="flex items-center justify-between gap-2"><span className="text-sm font-bold text-textPrimary">{item.label}</span><span className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${enabled ? "bg-primary" : "bg-slate-200"}`}><span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${enabled ? "translate-x-5" : "translate-x-0.5"}`} /></span></span>
+                            <span className="mt-1.5 block text-xs leading-5 text-textSecondary">{item.desc}</span>
+                            <span className={`mt-2 block text-xs font-semibold ${enabled ? "text-primary" : "text-textSecondary"}`}>{enabled ? "Enabled" : "Disabled"}</span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </Section>
             )}
