@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, ChevronDown, LayoutDashboard, LogOut, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getAvatarUrl } from "../services/profileService";
@@ -10,16 +10,9 @@ import logo from "../assets/images/logo.webp";
 const desktopLinkClasses = ({ isActive }) =>
   [
     "group relative px-1 py-2 text-sm font-semibold font-body transition-colors duration-300",
-    isActive ? "text-white" : "text-white/80 hover:text-white",
+    isActive ? "text-secondary" : "text-white/80 hover:text-secondary",
   ].join(" ");
 
-const DesktopLinkUnderline = ({ isActive }) => (
-  <span
-    className={`absolute -bottom-1 left-0 h-px bg-secondary transition-all duration-300 ${
-      isActive ? "w-full" : "w-0 group-hover:w-full"
-    }`}
-  />
-);
 
 /* ─── Mobile link styles ──────────────────────────────────────────── */
 const mobileLinkClasses = ({ isActive }) =>
@@ -30,16 +23,36 @@ const mobileLinkClasses = ({ isActive }) =>
       : "text-textSecondary hover:bg-background hover:text-primary border-l-4 border-transparent",
   ].join(" ");
 
+const DROPDOWNS = {
+  About: [
+    { label: "About Us", to: "/about" },
+    { label: "Gallery", to: "/gallery" },
+    { label: "News", to: "/news" },
+    { label: "Events", to: "/events" },
+  ],
+  Academics: [
+    { label: "Academics Overview", to: "/academics" },
+    { label: "Departments", to: "/departments" },
+    { label: "Staff", to: "/staff" },
+  ],
+};
+
 /* ─── Navbar ──────────────────────────────────────────────────────── */
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(null);
+  const [mobileDropdowns, setMobileDropdowns] = useState({ about: false, academics: false });
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const dropdownRef = useRef(null);
 
   const closeMenu = () => setIsOpen(false);
+
+  const toggleMobileDropdown = (menu) => {
+    setMobileDropdowns((prev) => ({ ...prev, [menu]: !prev[menu] }));
+  };
 
   const handleLogout = () => {
     logout();
@@ -94,7 +107,16 @@ const Navbar = () => {
     );
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/20 bg-primaryDark/55 shadow-lg shadow-primaryDark/10 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-primaryDark shadow-lg shadow-primaryDark/25">
+      <div className="hidden border-b border-white/10 bg-primaryDark/90 sm:block">
+        <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-6 text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-100 lg:px-8">
+          <p>Learn. Lead. Thrive.</p>
+          <div className="flex items-center gap-5">
+            <Link to="/admissions" className="transition-colors hover:text-secondary">Admissions</Link>
+            <Link to="/contact" className="transition-colors hover:text-secondary">Contact Us</Link>
+          </div>
+        </div>
+      </div>
       <nav
         aria-label="Primary"
         className="mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6 lg:h-20 lg:px-8"
@@ -102,38 +124,80 @@ const Navbar = () => {
         {/* ── Left: Logo ── */}
         <Link
           to="/"
-          className="flex shrink-0 items-center gap-2 mr-6"
+          className="mr-6 flex shrink-0 items-center gap-3"
           onClick={closeMenu}
         >
-          <img
-            src={logo}
-            alt="School logo"
-            className="h-10 w-10 object-contain lg:h-12 lg:w-12"
-          />
-          <span className="hidden font-heading text-lg font-bold text-white md:block">
-            S.T.I.S
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1 shadow-md ring-1 ring-white/20 lg:h-12 lg:w-12">
+            <img
+              src={logo}
+              alt="S.T.I.S school logo"
+              className="h-full w-full object-contain"
+            />
+          </span>
+          <span className="hidden min-w-0 md:block">
+            <span className="block font-heading text-lg font-bold leading-none tracking-wide text-white">S.T.I.S</span>
+            <span className="mt-1 block max-w-[135px] truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-blue-100 lg:max-w-none">Sir Tshobs International School</span>
           </span>
         </Link>
 
         {/* ── Center: Nav links (flex-1 so they fill & center) ── */}
         <div className="hidden lg:flex flex-1 items-center justify-center">
           <ul className="flex items-center gap-1 xl:gap-2">
-            {MAIN_NAV_LINKS.map((link) => (
-              <li key={link.to}>
-                <NavLink
-                  to={link.to}
-                  end={link.to === "/"}
-                  className={desktopLinkClasses}
-                >
-                  {({ isActive }) => (
-                    <>
+            {MAIN_NAV_LINKS.map((link) => {
+              const dropdownItems = DROPDOWNS[link.label];
+              if (dropdownItems) {
+                const isCurrentActive = dropdownItems.some((item) => location.pathname === item.to);
+                return (
+                  <li key={link.label} className="relative group py-2">
+                    <button
+                      type="button"
+                      aria-haspopup="menu"
+                      aria-expanded={isCurrentActive}
+                      className={`flex items-center gap-1 px-3 py-2 text-sm font-semibold font-body transition-colors duration-300 ${
+                        isCurrentActive ? "text-secondary" : "text-white/80 hover:text-secondary"
+                      }`}
+                    >
                       {link.label}
-                      <DesktopLinkUnderline isActive={isActive} />
-                    </>
-                  )}
-                </NavLink>
-              </li>
-            ))}
+                      <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 group-hover:rotate-180" />
+
+                    </button>
+                    {/* Dropdown Menu */}
+                    <div className="absolute left-1/2 -translate-x-1/2 mt-1 w-48 rounded-2xl border border-white/10 bg-primaryDark/95 p-1.5 shadow-xl opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200">
+                      <ul>
+                        {dropdownItems.map((sub) => (
+                          <li key={sub.to}>
+                            <NavLink
+                              to={sub.to}
+                              className={({ isActive }) =>
+                                `block rounded-xl px-4 py-2.5 text-xs font-semibold font-body transition-colors duration-150 ${
+                                  isActive
+                                    ? "bg-secondary text-primaryDark"
+                                    : "text-white/85 hover:bg-white/10 hover:text-white"
+                                }`
+                              }
+                            >
+                              {sub.label}
+                            </NavLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </li>
+                );
+              }
+
+              return (
+                <li key={link.to}>
+                  <NavLink
+                    to={link.to}
+                    end={link.to === "/"}
+                    className={desktopLinkClasses}
+                  >
+                    {link.label}
+                  </NavLink>
+                </li>
+              );
+            })}
           </ul>
         </div>
 
@@ -210,12 +274,20 @@ const Navbar = () => {
               )}
             </div>
           ) : (
-            <Link
-              to="/login"
-              className="hidden rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold font-body text-white shadow-md transition-all duration-200 hover:bg-primary/90 hover:shadow-lg lg:inline-block"
-            >
-              Login
-            </Link>
+            <>
+              <Link
+                to="/admissions"
+                className="hidden rounded-xl border border-secondary bg-secondary px-4 py-2 text-sm font-semibold font-body text-primaryDark shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-secondary/90 hover:shadow-lg xl:inline-block"
+              >
+                Apply Now
+              </Link>
+              <Link
+                to="/login"
+                className="hidden rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold font-body text-white shadow-md transition-all duration-200 hover:bg-primary/90 hover:shadow-lg lg:inline-block"
+              >
+                Login
+              </Link>
+            </>
           )}
 
           {/* ── Mobile hamburger ── */}
@@ -240,18 +312,56 @@ const Navbar = () => {
         }`}
       >
         <ul className="space-y-1 border-t border-border bg-surface px-4 py-4">
-          {MAIN_NAV_LINKS.map((link) => (
-            <li key={link.to}>
-              <NavLink
-                to={link.to}
-                end={link.to === "/"}
-                onClick={closeMenu}
-                className={mobileLinkClasses}
-              >
-                {link.label}
-              </NavLink>
-            </li>
-          ))}
+          {MAIN_NAV_LINKS.map((link) => {
+            const dropdownItems = DROPDOWNS[link.label];
+            if (dropdownItems) {
+              const isOpenDropdown = mobileDropdowns[link.label.toLowerCase()];
+              return (
+                <li key={link.label}>
+                  <button
+                    type="button"
+                    onClick={() => toggleMobileDropdown(link.label.toLowerCase())}
+                    className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-base font-semibold font-body text-textSecondary hover:bg-background hover:text-primary"
+                  >
+                    <span>{link.label}</span>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        isOpenDropdown ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  {isOpenDropdown && (
+                    <ul className="mt-1 ml-4 border-l border-border pl-2 space-y-1 animate-fade-in">
+                      {dropdownItems.map((sub) => (
+                        <li key={sub.to}>
+                          <NavLink
+                            to={sub.to}
+                            onClick={closeMenu}
+                            className={mobileLinkClasses}
+                          >
+                            {sub.label}
+                          </NavLink>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            }
+
+            return (
+              <li key={link.to}>
+                <NavLink
+                  to={link.to}
+                  end={link.to === "/"}
+                  onClick={closeMenu}
+                  className={mobileLinkClasses}
+                >
+                  {link.label}
+                </NavLink>
+              </li>
+            );
+          })}
 
           {/* Mobile auth */}
           <li className="pt-3 border-t border-border space-y-2">
@@ -283,13 +393,22 @@ const Navbar = () => {
                 </button>
               </>
             ) : (
-              <Link
-                to="/login"
-                onClick={closeMenu}
-                className="block rounded-xl bg-primary px-4 py-3 text-center text-base font-semibold font-body text-white hover:bg-primary/90"
-              >
-                Login
-              </Link>
+              <>
+                <Link
+                  to="/admissions"
+                  onClick={closeMenu}
+                  className="block rounded-xl bg-secondary px-4 py-3 text-center text-base font-semibold font-body text-primaryDark hover:bg-secondary/90"
+                >
+                  Apply Now
+                </Link>
+                <Link
+                  to="/login"
+                  onClick={closeMenu}
+                  className="block rounded-xl bg-primary px-4 py-3 text-center text-base font-semibold font-body text-white hover:bg-primary/90"
+                >
+                  Login
+                </Link>
+              </>
             )}
           </li>
         </ul>

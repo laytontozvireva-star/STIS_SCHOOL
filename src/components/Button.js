@@ -4,6 +4,7 @@ const VARIANT_CLASSES = {
   primary: "bg-gradient-to-r from-primary to-[#15305c] text-white shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5",
   secondary: "bg-gradient-to-r from-secondary to-[#e59b20] text-white shadow-lg shadow-secondary/30 hover:shadow-xl hover:shadow-secondary/40 hover:-translate-y-0.5",
   outline: "bg-transparent text-primary border-2 border-primary hover:bg-primary/5 hover:shadow-md",
+  ghost: "bg-transparent text-primaryDark/85 hover:bg-primary/10 hover:text-primaryDark",
 };
 
 const BASE_CLASSES =
@@ -16,17 +17,25 @@ const Button = ({
   href,
   type = "button",
   onClick,
+  icon: Icon,
   className = "",
   disabled = false,
   ...rest
 }) => {
   const classes = `${BASE_CLASSES} ${VARIANT_CLASSES[variant]} ${className}`;
 
+  const renderContent = () => (
+    <>
+      {Icon && <Icon className="mr-2 h-4 w-4 shrink-0" />}
+      {children}
+    </>
+  );
+
   // Internal route link
   if (to) {
     return (
       <Link to={to} className={classes} {...rest}>
-        {children}
+        {renderContent()}
       </Link>
     );
   }
@@ -35,7 +44,7 @@ const Button = ({
   if (href) {
     return (
       <a href={href} className={classes} {...rest}>
-        {children}
+        {renderContent()}
       </a>
     );
   }
@@ -43,7 +52,7 @@ const Button = ({
   // Default: actual button (forms, actions)
   return (
     <button type={type} onClick={onClick} disabled={disabled} className={classes} {...rest}>
-      {children}
+      {renderContent()}
     </button>
   );
 };
