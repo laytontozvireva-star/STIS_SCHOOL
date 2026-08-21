@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Calendar, BookOpen, DollarSign, Home, Phone } from "lucide-react";
 import Button from "./Button";
+import LikeButton from "./LikeButton";
 import { VACATION_PROGRAM, CONTACT_INFO } from "../utils/constants";
 import { getActiveVacationPost } from "../services/vacationPostsService";
 import bannerImage from "../assets/images/august-vacation-banner.webp";
@@ -110,6 +111,13 @@ const VacationBanner = () => {
                 WhatsApp {CONTACT_INFO.whatsapp}
               </a>
             </div>
+
+            {/* Like / Dislike — only for live DB posts */}
+            {activePost?.id && (
+              <div className="mt-4">
+                <LikeButton contentType="vacation_post" contentId={activePost.id} />
+              </div>
+            )}
           </div>
 
           <figure className="order-2 mx-auto w-full max-w-md animate-slide-up-delay-1 lg:justify-self-end">

@@ -361,6 +361,8 @@ RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.profiles (id, name, email, role)
   VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'name', 'New User'), NEW.email, 'student');
+  
+  INSERT INTO public.students (profile_id) VALUES (NEW.id);
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -521,3 +523,45 @@ CREATE UNIQUE INDEX IF NOT EXISTS students_student_number_unique
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS notification_preferences JSONB NOT NULL
   DEFAULT '{"email": true, "grades": true, "events": false, "announcements": true}'::jsonb;
+
+-- ================================================================
+-- LIKES & DISLIKES
+-- Run this section in Supabase SQL Editor to enable reactions on
+-- Events, News posts, and Vacation posts.
+-- ================================================================
+CREATE TABLE IF NOT EXISTS public.likes (
+  id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id      UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  content_type TEXT NOT NULL CHECK (content_type IN ('event', 'news', 'vacation_post')),
+  content_id   UUID NOT NULL,
+  reaction_type TEXT NOT NULL CHECK (reaction_type IN ('like', 'dislike')),
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (user_id, content_type, content_id)
+);
+
+ALTER TABLE public.likes ENABLE ROW LEVEL SECURITY;
+
+-- Anyone (including guests) can view reaction counts
+DROP POLICY IF EXISTS "Anyone can view likes" ON public.likes;
+CREATE POLICY "Anyone can view likes"
+  ON public.likes FOR SELECT USING (true);
+
+-- Authenticated users can insert their own reactions
+DROP POLICY IF EXISTS "Users can insert own likes" ON public.likes;
+CREATE POLICY "Users can insert own likes"
+  ON public.likes FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+-- Users can update their own reactions (like → dislike and vice versa)
+DROP POLICY IF EXISTS "Users can update own likes" ON public.likes;
+CREATE POLICY "Users can update own likes"
+  ON public.likes FOR UPDATE TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Users can only remove their own reactions
+DROP POLICY IF EXISTS "Users can delete own likes" ON public.likes;
+CREATE POLICY "Users can delete own likes"
+  ON public.likes FOR DELETE TO authenticated
+  USING (auth.uid() = user_id);
+

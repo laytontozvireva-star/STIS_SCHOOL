@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Hero from "../components/Hero";
+import LikeButton from "../components/LikeButton";
 import eventImage from "../assets/images/gallery/stis-anniversary-team.webp";
 import Card from "../components/Card";
 import Button from "../components/Button";
@@ -157,6 +158,9 @@ const Events = () => {
                       {event.description}
                     </p>
                   )}
+                  <div className="mt-3">
+                    <LikeButton contentType="event" contentId={event.id} />
+                  </div>
                 </div>
                 <Button
                   variant={event.is_featured ? "primary" : "outline"}
@@ -185,9 +189,12 @@ const Events = () => {
                   title={event.title}
                   description={event.description || ""}
                 >
-                  <span className="font-body text-xs text-textSecondary">
-                    {friendlyDate(event.event_date)}
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="font-body text-xs text-textSecondary">
+                      {friendlyDate(event.event_date)}
+                    </span>
+                    <LikeButton contentType="event" contentId={event.id} />
+                  </div>
                 </Card>
               ))}
             </div>

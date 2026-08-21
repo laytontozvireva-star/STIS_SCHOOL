@@ -4,6 +4,7 @@ import celebrationImage from "../assets/images/gallery/stis-anniversary-celebrat
 import Card from "../components/Card";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
+import LikeButton from "../components/LikeButton";
 import { getNewsPosts } from "../services/newsService";
 
 // Placeholder news items — no backend yet. Replace with data fetched via
@@ -67,9 +68,12 @@ const News = () => {
             <Card key={item.id} title={item.title} description={item.excerpt}>
               <div className="flex items-center justify-between mt-4">
                 <span className="font-body text-xs text-textSecondary">{item.date}</span>
-                <Button variant="outline" className="px-3 py-1.5 text-xs" onClick={() => setSelectedItem(item)}>
-                  Read More
-                </Button>
+                <div className="flex items-center gap-2">
+                  <LikeButton contentType="news" contentId={item.id} />
+                  <Button variant="outline" className="px-3 py-1.5 text-xs" onClick={() => setSelectedItem(item)}>
+                    Read More
+                  </Button>
+                </div>
               </div>
             </Card>
           ))}

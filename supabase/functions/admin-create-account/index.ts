@@ -50,6 +50,10 @@ Deno.serve(async (request) => {
       .eq("id", userId);
     if (roleError) throw roleError;
 
+    if (role !== "student") {
+      await adminClient.from("students").delete().eq("profile_id", userId);
+    }
+
     if (role === "teacher") {
       const { error: teacherError } = await adminClient.from("teachers").insert({
         profile_id: userId,

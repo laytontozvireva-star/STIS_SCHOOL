@@ -16,3 +16,4 @@ export const getTeachers = async () => result(await supabase.from("teachers").se
 export const getAllTeacherClasses = async () => result(await supabase.from("teacher_classes").select("*, teachers(id, profiles(name))").order("grade").order("class"));
 export const assignTeacherClass = async ({ teacherId, subject, grade, className, room }) => result(await supabase.from("teacher_classes").insert({ teacher_id: teacherId, subject, grade, class: className, room: room || null }).select().single());
 export const removeTeacherClass = async (id) => result(await supabase.from("teacher_classes").delete().eq("id", id));
+export const updateStudent = async (studentId, updates) => result(await supabase.from("students").update(updates).eq("id", studentId).select().single());
